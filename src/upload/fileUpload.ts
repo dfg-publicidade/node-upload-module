@@ -1,24 +1,16 @@
-import path from 'path';
 import appDebugger from 'debug';
 import { Request } from 'express';
 import { UploadedFile } from 'express-fileupload';
 import fs from 'fs-extra';
+import path from 'path';
 import UploadError from '../enums/uploadError';
+import Upload from '../interfaces/upload';
+import UploadConfig from '../interfaces/uploadConfig';
 
 /* Module */
-interface UploadConfig {
-    dir: string;
-    name: string;
-    prefix: string;
-    rules: {
-        sizeInKBytes?: number;
-        ext?: string[];
-    };
-}
-
 const byteToKByteConv: number = 1024;
 
-class Upload {
+class FileUpload implements Upload {
     protected dir: string;
     protected config: UploadConfig;
     protected debug: appDebugger.IDebugger;
@@ -49,6 +41,10 @@ class Upload {
 
     public hasFile(): boolean {
         return !!this.file;
+    }
+
+    public getFile(): UploadedFile {
+        return this.file;
     }
 
     public md5(): string {
@@ -119,5 +115,4 @@ class Upload {
     }
 }
 
-export default Upload;
-export { UploadConfig };
+export default FileUpload;

@@ -2,16 +2,9 @@ import appDebugger from 'debug';
 import { Request } from 'express';
 import { UploadedFile } from 'express-fileupload';
 import UploadError from '../enums/uploadError';
-interface UploadConfig {
-    dir: string;
-    name: string;
-    prefix: string;
-    rules: {
-        sizeInKBytes?: number;
-        ext?: string[];
-    };
-}
-declare class Upload {
+import Upload from '../interfaces/upload';
+import UploadConfig from '../interfaces/uploadConfig';
+declare class FileUpload implements Upload {
     protected dir: string;
     protected config: UploadConfig;
     protected debug: appDebugger.IDebugger;
@@ -20,11 +13,11 @@ declare class Upload {
     constructor(config: UploadConfig, debug: appDebugger.IDebugger);
     init(req: Request): Promise<void>;
     hasFile(): boolean;
+    getFile(): UploadedFile;
     md5(): string;
     validate(): UploadError;
     upload(config: any, ref: string): Promise<any>;
     protected getExt(): string[];
     protected getSizeInKBytes(): number;
 }
-export default Upload;
-export { UploadConfig };
+export default FileUpload;

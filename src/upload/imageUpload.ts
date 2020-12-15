@@ -4,27 +4,12 @@ import fs from 'fs-extra';
 import sharp, { Sharp } from 'sharp';
 import ImageUploadError from '../enums/imageUploadError';
 import UploadError from '../enums/uploadError';
-import Upload, { UploadConfig } from './upload';
+import ImageUploadConfig from '../interfaces/imageUploadConfig';
+import Upload from '../interfaces/upload';
+import FileUpload from './fileUpload';
 
 /* Module */
-interface ImageUploadConfig extends UploadConfig {
-    dir: string;
-    name: string;
-    prefix: string;
-    rules: {
-        width?: number;
-        height?: number;
-        sizeInKBytes?: number;
-        ext?: string[];
-    };
-    sizes?: {
-        tag: string;
-        width?: number;
-        height?: number;
-    }[];
-}
-
-class ImageUpload extends Upload {
+class ImageUpload extends FileUpload implements Upload {
     public image: Sharp;
     public metadata: any;
 
@@ -47,6 +32,10 @@ class ImageUpload extends Upload {
 
     public hasImage(): boolean {
         return !!this.file && !!this.image;
+    }
+
+    public getImage(): Sharp {
+        return this.image;
     }
 
     public imgValidate(): ImageUploadError {
@@ -142,4 +131,3 @@ class ImageUpload extends Upload {
 }
 
 export default ImageUpload;
-export { ImageUploadConfig };
