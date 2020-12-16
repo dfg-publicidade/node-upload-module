@@ -1,6 +1,6 @@
 import appDebugger from 'debug';
 import { UploadedFile } from 'express-fileupload';
-import Upload from '../interfaces/Upload';
+import Upload from '../interfaces/upload';
 import UploadConfig from '../interfaces/uploadConfig';
 import FileUpload from './fileUpload';
 declare class GStorageUpload extends FileUpload implements Upload {

@@ -2,7 +2,7 @@ import { Storage } from '@google-cloud/storage';
 import appDebugger from 'debug';
 import { UploadedFile } from 'express-fileupload';
 import mime from 'mime';
-import Upload from '../interfaces/Upload';
+import Upload from '../interfaces/upload';
 import UploadConfig from '../interfaces/uploadConfig';
 import FileUpload from './fileUpload';
 
