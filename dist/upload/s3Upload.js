@@ -30,9 +30,10 @@ class S3Upload extends fileUpload_1.default {
             }
             catch (error) {
                 this.debug(`Path ${process.env.NODE_ENV} already exists`);
+                console.log(error);
             }
         }
-        let pathName;
+        let pathName = '';
         for (const partialName of name.split('/')) {
             pathName += partialName + '/';
             try {
@@ -43,6 +44,7 @@ class S3Upload extends fileUpload_1.default {
             }
             catch (error) {
                 this.debug(`Path ${pathName} already exists`);
+                console.log(error);
             }
         }
         const data = await s3Uploader_1.default.upload(s3, {

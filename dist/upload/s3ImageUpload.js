@@ -33,6 +33,7 @@ class S3ImageUpload extends imageUpload_1.default {
             }
             catch (error) {
                 this.debug(`Path ${process.env.NODE_ENV} already exists`);
+                console.log(error);
             }
         }
         let pathName;
@@ -46,6 +47,7 @@ class S3ImageUpload extends imageUpload_1.default {
             }
             catch (error) {
                 this.debug(`Path ${pathName} already exists`);
+                console.log(error);
             }
         }
         let data = await s3Uploader_1.default.upload(s3, {

@@ -42,10 +42,11 @@ class S3Upload extends FileUpload implements Upload {
             }
             catch (error) {
                 this.debug(`Path ${process.env.NODE_ENV} already exists`);
+                console.log(error);
             }
         }
 
-        let pathName: string;
+        let pathName: string = '';
         for (const partialName of name.split('/')) {
             pathName += partialName + '/';
 
@@ -57,6 +58,7 @@ class S3Upload extends FileUpload implements Upload {
             }
             catch (error) {
                 this.debug(`Path ${pathName} already exists`);
+                console.log(error);
             }
         }
 

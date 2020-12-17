@@ -39,6 +39,7 @@ class S3ImageUpload extends ImageUpload implements Upload {
             }
             catch (error) {
                 this.debug(`Path ${process.env.NODE_ENV} already exists`);
+                console.log(error);
             }
         }
 
@@ -54,6 +55,7 @@ class S3ImageUpload extends ImageUpload implements Upload {
             }
             catch (error) {
                 this.debug(`Path ${pathName} already exists`);
+                console.log(error);
             }
         }
 
