@@ -34,16 +34,16 @@ class S3ImageUpload extends ImageUpload implements Upload {
             try {
                 await S3Uploader.upload(s3, {
                     Bucket: config.aws.bucket,
-                    Key: process.env.NODE_ENV
+                    Key: process.env.NODE_ENV + '/'
                 });
             }
             catch (error) {
-                this.debug(`Path ${process.env.NODE_ENV} already exists`);
+                this.debug(`Path ${process.env.NODE_ENV}/ already exists`);
                 console.log(error);
             }
         }
 
-        let pathName: string;
+        let pathName: string = '';
         for (const partialName of name.split('/')) {
             pathName += partialName + '/';
 
