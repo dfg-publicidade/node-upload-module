@@ -21,39 +21,13 @@ class S3Upload extends fileUpload_1.default {
         });
         this.debug('Saving file');
         json.ext = this.ext;
-        if (process.env.NODE_ENV !== 'production') {
-            try {
-                await s3Uploader_1.default.upload(s3, {
-                    Bucket: config.aws.bucket,
-                    Key: process.env.NODE_ENV
-                });
-            }
-            catch (error) {
-                this.debug(`Path ${process.env.NODE_ENV} already exists`);
-                console.log(error);
-            }
-        }
-        let pathName = '';
-        for (const partialName of name.split('/')) {
-            pathName += partialName + '/';
-            try {
-                await s3Uploader_1.default.upload(s3, {
-                    Bucket: config.aws.bucket,
-                    Key: pathName
-                });
-            }
-            catch (error) {
-                this.debug(`Path ${pathName} already exists`);
-                console.log(error);
-            }
-        }
         const data = await s3Uploader_1.default.upload(s3, {
             Bucket: config.aws.bucket,
-            Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext,
+            Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '_' : '') + name + '_' + ref + this.ext,
             Body: this.file.data
         });
         return Promise.resolve({
-            path: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext,
+            path: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '_' : '') + name + '_' + ref + this.ext,
             filename: name + this.ext,
             original: data.Location
         });
