@@ -24,7 +24,7 @@ class S3Upload extends fileUpload_1.default {
         const data = await s3Uploader_1.default.upload(s3, {
             Bucket: 'bucket',
             Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext,
-            Body: this.file
+            Body: this.file.data
         });
         return Promise.resolve({
             path: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext,
