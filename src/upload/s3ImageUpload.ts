@@ -30,6 +30,33 @@ class S3ImageUpload extends ImageUpload implements Upload {
 
         json.ext = this.ext;
 
+        if (process.env.NODE_ENV !== 'production') {
+            try {
+                await S3Uploader.upload(s3, {
+                    Bucket: config.aws.bucket,
+                    Key: process.env.NODE_ENV
+                });
+            }
+            catch (error) {
+                this.debug(`Path ${process.env.NODE_ENV} already exists`);
+            }
+        }
+
+        let pathName: string;
+        for (const partialName of name.split('/')) {
+            pathName += partialName + '/';
+
+            try {
+                await S3Uploader.upload(s3, {
+                    Bucket: config.aws.bucket,
+                    Key: pathName
+                });
+            }
+            catch (error) {
+                this.debug(`Path ${pathName} already exists`);
+            }
+        }
+
         let data: any = await S3Uploader.upload(s3, {
             Bucket: config.aws.bucket,
             Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext,
