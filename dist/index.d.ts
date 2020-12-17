@@ -6,4 +6,6 @@ import FileUpload from './upload/fileUpload';
 import GStorageImageUpload from './upload/gstorageImageUpload';
 import GStorageUpload from './upload/gstorageUpload';
 import ImageUpload from './upload/imageUpload';
-export { FileUpload, ImageUpload, GStorageUpload, GStorageImageUpload, UploadConfig, ImageUploadConfig, UploadError, ImageUploadError };
+import S3ImageUpload from './upload/s3ImageUpload';
+import S3Upload from './upload/s3Upload';
+export { FileUpload, ImageUpload, GStorageUpload, GStorageImageUpload, S3Upload, S3ImageUpload, UploadConfig, ImageUploadConfig, UploadError, ImageUploadError };

@@ -1,0 +1,61 @@
+import AWS, { S3 } from 'aws-sdk';
+import appDebugger from 'debug';
+import ImageUploadConfig from '../interfaces/imageUploadConfig';
+import Upload from '../interfaces/upload';
+import ImageUpload from './imageUpload';
+
+/* Module */
+class S3ImageUpload extends ImageUpload implements Upload {
+    public constructor(config: ImageUploadConfig, debug: appDebugger.IDebugger) {
+        super(config, debug);
+    }
+
+    public async upload(config: any, ref: string): Promise<any> {
+        const json: any = {};
+
+        const name: string = this.config.prefix;
+        const width: number = this.getWidth();
+        const height: number = this.getHeight();
+
+        this.debug('Uploading file and doing resizes...');
+
+        const s3: S3 = new AWS.S3({
+            accessKeyId: config.aws.key,
+            secretAccessKey: config.aws.secret
+        });
+
+        this.debug(`Saving original (${width}x${height})`);
+
+        json.ext = this.ext;
+
+        let data: any = await s3.upload({
+            Bucket: 'bucket',
+            Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext,
+            Body: this.file
+        });
+
+        json.path = (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext;
+        json.filename = name + this.ext;
+        json.original = data.Location;
+
+        if (this.config.sizes) {
+            for (const size of this.config.sizes) {
+                this.debug(`Resizing to: ${size.tag} (${size.width ? size.width : 'auto'}x${size.height ? size.height : 'auto'})`);
+
+                await this.image.resize(size.width, size.height).toFile('/tmp/' + size.tag + this.ext);
+
+                data = await s3.upload({
+                    Bucket: 'bucket',
+                    Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + '_' + size.tag + this.ext,
+                    Body: '/tmp/' + size.tag + this.ext
+                });
+
+                json[size.tag] = data.Location;
+            }
+        }
+
+        return Promise.resolve(json);
+    }
+}
+
+export default S3ImageUpload;

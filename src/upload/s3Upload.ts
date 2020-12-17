@@ -1,0 +1,49 @@
+import AWS, { S3 } from 'aws-sdk';
+import appDebugger from 'debug';
+import { UploadedFile } from 'express-fileupload';
+import Upload from '../interfaces/upload';
+import UploadConfig from '../interfaces/uploadConfig';
+import FileUpload from './fileUpload';
+
+/* Module */
+class S3Upload extends FileUpload implements Upload {
+    protected config: UploadConfig;
+    protected debug: appDebugger.IDebugger;
+    protected file: UploadedFile;
+    protected ext: string;
+
+    public constructor(config: UploadConfig, debug: appDebugger.IDebugger) {
+        super(config, debug);
+    }
+
+    public async upload(config: any, ref: string): Promise<any> {
+        const json: any = {};
+
+        const name: string = this.config.prefix;
+
+        this.debug('Uploading file...');
+
+        const s3: S3 = new AWS.S3({
+            accessKeyId: config.aws.key,
+            secretAccessKey: config.aws.secret
+        });
+
+        this.debug('Saving file');
+
+        json.ext = this.ext;
+
+        const data: any = await s3.upload({
+            Bucket: 'bucket',
+            Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext,
+            Body: this.file
+        });
+
+        return Promise.resolve({
+            path: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext,
+            filename: name + this.ext,
+            original: data.Location
+        });
+    }
+}
+
+export default S3Upload;
