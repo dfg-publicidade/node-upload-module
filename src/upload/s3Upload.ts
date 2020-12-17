@@ -3,6 +3,7 @@ import appDebugger from 'debug';
 import { UploadedFile } from 'express-fileupload';
 import Upload from '../interfaces/upload';
 import UploadConfig from '../interfaces/uploadConfig';
+import S3Uploader from '../s3Uploader';
 import FileUpload from './fileUpload';
 
 /* Module */
@@ -32,7 +33,7 @@ class S3Upload extends FileUpload implements Upload {
 
         json.ext = this.ext;
 
-        const data: any = await s3.upload({
+        const data: any = await S3Uploader.upload(s3, {
             Bucket: 'bucket',
             Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext,
             Body: this.file

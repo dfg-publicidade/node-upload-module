@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const aws_sdk_1 = __importDefault(require("aws-sdk"));
+const s3Uploader_1 = __importDefault(require("../s3Uploader"));
 const fileUpload_1 = __importDefault(require("./fileUpload"));
 /* Module */
 class S3Upload extends fileUpload_1.default {
@@ -20,7 +21,7 @@ class S3Upload extends fileUpload_1.default {
         });
         this.debug('Saving file');
         json.ext = this.ext;
-        const data = await s3.upload({
+        const data = await s3Uploader_1.default.upload(s3, {
             Bucket: 'bucket',
             Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext,
             Body: this.file
