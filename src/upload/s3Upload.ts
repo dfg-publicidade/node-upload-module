@@ -3,8 +3,8 @@ import appDebugger from 'debug';
 import { UploadedFile } from 'express-fileupload';
 import Upload from '../interfaces/upload';
 import UploadConfig from '../interfaces/uploadConfig';
-import S3Uploader from '../s3Uploader';
 import FileUpload from './fileUpload';
+import S3Uploader from './s3Uploader';
 
 /* Module */
 class S3Upload extends FileUpload implements Upload {

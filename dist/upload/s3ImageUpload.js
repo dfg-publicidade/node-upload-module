@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const aws_sdk_1 = __importDefault(require("aws-sdk"));
 const imageUpload_1 = __importDefault(require("./imageUpload"));
+const s3Uploader_1 = __importDefault(require("./s3Uploader"));
 /* Module */
 class S3ImageUpload extends imageUpload_1.default {
     constructor(config, debug) {
@@ -22,7 +23,7 @@ class S3ImageUpload extends imageUpload_1.default {
         });
         this.debug(`Saving original (${width}x${height})`);
         json.ext = this.ext;
-        let data = await s3.upload({
+        let data = await s3Uploader_1.default.upload(s3, {
             Bucket: 'bucket',
             Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext,
             Body: this.file
@@ -34,7 +35,7 @@ class S3ImageUpload extends imageUpload_1.default {
             for (const size of this.config.sizes) {
                 this.debug(`Resizing to: ${size.tag} (${size.width ? size.width : 'auto'}x${size.height ? size.height : 'auto'})`);
                 await this.image.resize(size.width, size.height).toFile('/tmp/' + size.tag + this.ext);
-                data = await s3.upload({
+                data = await s3Uploader_1.default.upload(s3, {
                     Bucket: 'bucket',
                     Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + '_' + size.tag + this.ext,
                     Body: '/tmp/' + size.tag + this.ext

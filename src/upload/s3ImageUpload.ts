@@ -3,6 +3,7 @@ import appDebugger from 'debug';
 import ImageUploadConfig from '../interfaces/imageUploadConfig';
 import Upload from '../interfaces/upload';
 import ImageUpload from './imageUpload';
+import S3Uploader from './s3Uploader';
 
 /* Module */
 class S3ImageUpload extends ImageUpload implements Upload {
@@ -28,7 +29,7 @@ class S3ImageUpload extends ImageUpload implements Upload {
 
         json.ext = this.ext;
 
-        let data: any = await s3.upload({
+        let data: any = await S3Uploader.upload(s3, {
             Bucket: 'bucket',
             Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext,
             Body: this.file
@@ -44,7 +45,7 @@ class S3ImageUpload extends ImageUpload implements Upload {
 
                 await this.image.resize(size.width, size.height).toFile('/tmp/' + size.tag + this.ext);
 
-                data = await s3.upload({
+                data = await S3Uploader.upload(s3, {
                     Bucket: 'bucket',
                     Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + '_' + size.tag + this.ext,
                     Body: '/tmp/' + size.tag + this.ext
