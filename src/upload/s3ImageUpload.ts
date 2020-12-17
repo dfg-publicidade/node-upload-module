@@ -31,7 +31,7 @@ class S3ImageUpload extends ImageUpload implements Upload {
         json.ext = this.ext;
 
         let data: any = await S3Uploader.upload(s3, {
-            Bucket: 'bucket',
+            Bucket: config.bucket,
             Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext,
             Body: this.file.data
         });
@@ -47,7 +47,7 @@ class S3ImageUpload extends ImageUpload implements Upload {
                 await this.image.resize(size.width, size.height).toFile('/tmp/' + size.tag + this.ext);
 
                 data = await S3Uploader.upload(s3, {
-                    Bucket: 'bucket',
+                    Bucket: config.bucket,
                     Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + '_' + size.tag + this.ext,
                     Body: fs.readFileSync('/tmp/' + size.tag + this.ext)
                 });

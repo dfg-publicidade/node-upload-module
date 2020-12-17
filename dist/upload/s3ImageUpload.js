@@ -25,7 +25,7 @@ class S3ImageUpload extends imageUpload_1.default {
         this.debug(`Saving original (${width}x${height})`);
         json.ext = this.ext;
         let data = await s3Uploader_1.default.upload(s3, {
-            Bucket: 'bucket',
+            Bucket: config.bucket,
             Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext,
             Body: this.file.data
         });
@@ -37,7 +37,7 @@ class S3ImageUpload extends imageUpload_1.default {
                 this.debug(`Resizing to: ${size.tag} (${size.width ? size.width : 'auto'}x${size.height ? size.height : 'auto'})`);
                 await this.image.resize(size.width, size.height).toFile('/tmp/' + size.tag + this.ext);
                 data = await s3Uploader_1.default.upload(s3, {
-                    Bucket: 'bucket',
+                    Bucket: config.bucket,
                     Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + '_' + size.tag + this.ext,
                     Body: fs_extra_1.default.readFileSync('/tmp/' + size.tag + this.ext)
                 });
