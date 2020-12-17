@@ -13,7 +13,7 @@ class S3Upload extends fileUpload_1.default {
     }
     async upload(config, ref) {
         const json = {};
-        const name = this.config.prefix;
+        const name = this.config.prefix.replace(/\//ig, '_');
         this.debug('Uploading file...');
         const s3 = new aws_sdk_1.default.S3({
             accessKeyId: config.aws.key,

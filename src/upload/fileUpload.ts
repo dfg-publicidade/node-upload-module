@@ -32,7 +32,7 @@ class FileUpload implements Upload {
             this.file = Array.isArray(file) ? file[0] : file;
 
             if (this.file) {
-                this.ext = path.extname(file.name).toLowerCase();
+                this.ext = path.extname(this.file.name).toLowerCase();
             }
         }
 

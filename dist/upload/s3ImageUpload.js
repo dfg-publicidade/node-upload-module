@@ -14,7 +14,7 @@ class S3ImageUpload extends imageUpload_1.default {
     }
     async upload(config, ref) {
         const json = {};
-        const name = this.config.prefix;
+        const name = this.config.prefix.replace(/\//ig, '_');
         const width = this.getWidth();
         const height = this.getHeight();
         this.debug('Uploading file and doing resizes...');

@@ -20,7 +20,7 @@ class S3Upload extends FileUpload implements Upload {
     public async upload(config: any, ref: string): Promise<any> {
         const json: any = {};
 
-        const name: string = this.config.prefix;
+        const name: string = this.config.prefix.replace(/\//ig, '_');
 
         this.debug('Uploading file...');
 

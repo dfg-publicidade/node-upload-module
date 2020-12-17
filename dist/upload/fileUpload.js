@@ -19,7 +19,7 @@ class FileUpload {
             const file = req.files[this.config.name] ? req.files[this.config.name] : undefined;
             this.file = Array.isArray(file) ? file[0] : file;
             if (this.file) {
-                this.ext = path_1.default.extname(file.name).toLowerCase();
+                this.ext = path_1.default.extname(this.file.name).toLowerCase();
             }
         }
         return Promise.resolve();
