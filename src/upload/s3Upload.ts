@@ -34,7 +34,7 @@ class S3Upload extends FileUpload implements Upload {
         json.ext = this.ext;
 
         const data: any = await S3Uploader.upload(s3, {
-            Bucket: config.bucket,
+            Bucket: config.aws.bucket,
             Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext,
             Body: this.file.data
         });
