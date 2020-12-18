@@ -32,7 +32,7 @@ class S3ImageUpload extends ImageUpload implements Upload {
 
         let data: any = await S3Uploader.upload(s3, {
             Bucket: config.aws.bucket,
-            Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '_' : '') + name + '_' + ref + this.ext,
+            Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext,
             Body: this.file.data
         });
 
@@ -48,7 +48,7 @@ class S3ImageUpload extends ImageUpload implements Upload {
 
                 data = await S3Uploader.upload(s3, {
                     Bucket: config.aws.bucket,
-                    Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + '_' + size.tag + this.ext,
+                    Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + '/' + size.tag + this.ext,
                     Body: fs.readFileSync('/tmp/' + size.tag + this.ext)
                 });
 
