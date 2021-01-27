@@ -12,11 +12,11 @@
     },
     "dependencies": {
         "@dfgpublicidade/node-app-module": "git+https://github.com/dfg-publicidade/node-app-module.git",
+        "@dfgpublicidade/node-aws-module": "git+https://github.com/dfg-publicidade/node-aws-module.git",
         "@dfgpublicidade/node-files-module": "git+https://github.com/dfg-publicidade/node-files-module.git",
         "@google-cloud/storage": "^5.7.0",
         "@types/express-fileupload": "^1.1.6",
         "@types/sharp": "^0.26.1",
-        "aws-sdk": "^2.813.0",
         "express-fileupload": "^1.2.0",
         "sharp": "^0.26.2"
     },
