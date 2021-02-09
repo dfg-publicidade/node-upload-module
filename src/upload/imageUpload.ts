@@ -13,10 +13,10 @@ class ImageUpload extends FileUpload implements Upload {
     public image: Sharp;
     public metadata: any;
 
-    protected config: ImageUploadConfig;
+    protected uploadConfig: ImageUploadConfig;
 
-    public constructor(config: ImageUploadConfig, debug: appDebugger.IDebugger) {
-        super(config, debug);
+    public constructor(config: any, uploadConfig: ImageUploadConfig, debug: appDebugger.IDebugger) {
+        super(config, uploadConfig, debug);
     }
 
     public async init(req: Request): Promise<void> {
@@ -70,13 +70,13 @@ class ImageUpload extends FileUpload implements Upload {
         return undefined;
     }
 
-    public async upload(config: any, ref: string): Promise<any> {
+    public async upload(ref: string): Promise<any> {
         const json: any = {};
 
-        const uploadPath: string = config.path + this.dir;
-        const uploadUrl: string = config.url + this.dir;
+        const uploadPath: string = this.config.path + this.uploadConfig.dir;
+        const uploadUrl: string = this.config.url + this.uploadConfig.dir;
 
-        const name: string = this.config.name;
+        const name: string = this.uploadConfig.name;
         const width: number = this.getWidth();
         const height: number = this.getHeight();
 
@@ -90,10 +90,10 @@ class ImageUpload extends FileUpload implements Upload {
         this.debug(`Saving original (${width}x${height})`);
         await this.image.toFile(uploadPath + ref + '/' + name + this.ext);
         json.original = uploadUrl + ref + '/' + name + this.ext;
-        json.filename = this.dir + '/' + ref + '/' + name + this.ext;
+        json.filename = this.uploadConfig.dir + '/' + ref + '/' + name + this.ext;
 
-        if (this.config.sizes) {
-            for (const size of this.config.sizes) {
+        if (this.uploadConfig.sizes) {
+            for (const size of this.uploadConfig.sizes) {
                 this.debug(`Resizing to: ${size.tag} (${size.width}x${size.height})`);
                 await this.image.resize(size.width, size.height).toFile(uploadPath + ref + '/' + name + '_' + size.tag + this.ext);
                 json[size.tag] = uploadUrl + ref + '/' + name + '_' + size.tag + this.ext;
@@ -106,24 +106,24 @@ class ImageUpload extends FileUpload implements Upload {
     }
 
     protected getExt(): string[] {
-        if (this.config && this.config.rules && this.config.rules.ext) {
-            return this.config.rules.ext;
+        if (this.uploadConfig && this.uploadConfig.rules && this.uploadConfig.rules.ext) {
+            return this.uploadConfig.rules.ext;
         }
 
         return ['.jpg', '.jpeg', '.png'];
     }
 
     protected getWidth(): number {
-        if (this.config && this.config.rules && this.config.rules.width) {
-            return this.config.rules.width;
+        if (this.uploadConfig && this.uploadConfig.rules && this.uploadConfig.rules.width) {
+            return this.uploadConfig.rules.width;
         }
 
         return this.metadata.width;
     }
 
     protected getHeight(): number {
-        if (this.config && this.config.rules && this.config.rules.height) {
-            return this.config.rules.height;
+        if (this.uploadConfig && this.uploadConfig.rules && this.uploadConfig.rules.height) {
+            return this.uploadConfig.rules.height;
         }
 
         return this.metadata.height;

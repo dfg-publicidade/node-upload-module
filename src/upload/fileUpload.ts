@@ -11,15 +11,15 @@ import UploadConfig from '../interfaces/uploadConfig';
 const byteToKByteConv: number = 1024;
 
 class FileUpload implements Upload {
-    protected dir: string;
-    protected config: UploadConfig;
+    protected config: any;
+    protected uploadConfig: UploadConfig;
     protected debug: appDebugger.IDebugger;
     protected file: UploadedFile;
     protected ext: string;
 
-    public constructor(config: UploadConfig, debug: appDebugger.IDebugger) {
-        this.dir = config && config.dir ? config.dir : undefined;
+    public constructor(config: any, uploadConfig: UploadConfig, debug: appDebugger.IDebugger) {
         this.config = config;
+        this.uploadConfig = uploadConfig;
         this.debug = debug;
     }
 
@@ -27,7 +27,7 @@ class FileUpload implements Upload {
         if (req.files) {
             this.debug('Parsing uploaded file...');
 
-            const file: UploadedFile | UploadedFile[] = req.files[this.config.name] ? req.files[this.config.name] : undefined;
+            const file: UploadedFile | UploadedFile[] = req.files[this.uploadConfig.name] ? req.files[this.uploadConfig.name] : undefined;
 
             this.file = Array.isArray(file) ? file[0] : file;
 
@@ -73,13 +73,13 @@ class FileUpload implements Upload {
         return undefined;
     }
 
-    public async upload(config: any, ref: string): Promise<any> {
+    public async upload(ref: string): Promise<any> {
         const json: any = {};
 
-        const uploadPath: string = config.path + this.dir;
-        const uploadUrl: string = config.url + this.dir;
+        const uploadPath: string = this.config.path + this.uploadConfig.dir;
+        const uploadUrl: string = this.config.url + this.uploadConfig.dir;
 
-        const name: string = this.config.name;
+        const name: string = this.uploadConfig.name;
 
         this.debug('Uploading file...');
 
@@ -89,9 +89,10 @@ class FileUpload implements Upload {
         }
 
         this.debug('Saving file');
+
         await this.file.mv(uploadPath + ref + '/' + name + this.ext);
         json.original = uploadUrl + ref + '/' + name + this.ext;
-        json.filename = this.dir + '/' + ref + '/' + name + this.ext;
+        json.filename = this.uploadConfig.dir + '/' + ref + '/' + name + this.ext;
 
         json.ext = this.ext;
 
@@ -99,16 +100,16 @@ class FileUpload implements Upload {
     }
 
     protected getExt(): string[] {
-        if (this.config && this.config.rules && this.config.rules.ext) {
-            return this.config.rules.ext;
+        if (this.uploadConfig && this.uploadConfig.rules && this.uploadConfig.rules.ext) {
+            return this.uploadConfig.rules.ext;
         }
 
         return [this.ext];
     }
 
     protected getSizeInKBytes(): number {
-        if (this.config && this.config.rules && this.config.rules.sizeInKBytes) {
-            return this.config.rules.sizeInKBytes;
+        if (this.uploadConfig && this.uploadConfig.rules && this.uploadConfig.rules.sizeInKBytes) {
+            return this.uploadConfig.rules.sizeInKBytes;
         }
 
         return this.file.data.length;

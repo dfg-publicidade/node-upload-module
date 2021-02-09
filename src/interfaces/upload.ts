@@ -14,7 +14,7 @@ interface Upload {
 
     validate(): UploadError;
 
-    upload(config: any, ref: string): Promise<any>;
+    upload(ref: string): Promise<any>;
 }
 
 export default Upload;

@@ -8,13 +8,13 @@ import FileUpload from './fileUpload';
 declare class ImageUpload extends FileUpload implements Upload {
     image: Sharp;
     metadata: any;
-    protected config: ImageUploadConfig;
-    constructor(config: ImageUploadConfig, debug: appDebugger.IDebugger);
+    protected uploadConfig: ImageUploadConfig;
+    constructor(config: any, uploadConfig: ImageUploadConfig, debug: appDebugger.IDebugger);
     init(req: Request): Promise<void>;
     hasImage(): boolean;
     getImage(): Sharp;
     imgValidate(): ImageUploadError;
-    upload(config: any, ref: string): Promise<any>;
+    upload(ref: string): Promise<any>;
     protected getExt(): string[];
     protected getWidth(): number;
     protected getHeight(): number;

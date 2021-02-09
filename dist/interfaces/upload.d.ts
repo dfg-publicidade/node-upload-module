@@ -7,6 +7,6 @@ interface Upload {
     getFile(): UploadedFile;
     md5(): string;
     validate(): UploadError;
-    upload(config: any, ref: string): Promise<any>;
+    upload(ref: string): Promise<any>;
 }
 export default Upload;

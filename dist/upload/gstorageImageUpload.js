@@ -8,19 +8,19 @@ const mime_1 = __importDefault(require("mime"));
 const imageUpload_1 = __importDefault(require("./imageUpload"));
 /* Module */
 class GStorageImageUpload extends imageUpload_1.default {
-    constructor(config, debug) {
-        super(config, debug);
+    constructor(config, uploadConfig, debug) {
+        super(config, uploadConfig, debug);
     }
-    async upload(config, ref) {
+    async upload(ref) {
         const json = {};
-        const name = this.config.prefix;
+        const name = this.uploadConfig.prefix;
         const width = this.getWidth();
         const height = this.getHeight();
         this.debug('Uploading file and doing resizes...');
         const storage = new storage_1.Storage();
         this.debug(`Saving original (${width}x${height})`);
         json.ext = this.ext;
-        let data = await storage.bucket(config.storage.uploadBucket).upload(this.file.tempFilePath, {
+        let data = await storage.bucket(this.uploadConfig.bucket).upload(this.file.tempFilePath, {
             destination: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext,
             gzip: true,
             contentType: mime_1.default.lookup(this.file.tempFilePath)
@@ -28,11 +28,11 @@ class GStorageImageUpload extends imageUpload_1.default {
         json.path = (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext;
         json.filename = name + this.ext;
         json.original = 'https://' + data[0].metadata.bucket + '/' + data[0].metadata.name;
-        if (this.config.sizes) {
-            for (const size of this.config.sizes) {
+        if (this.uploadConfig.sizes) {
+            for (const size of this.uploadConfig.sizes) {
                 this.debug(`Resizing to: ${size.tag} (${size.width ? size.width : 'auto'}x${size.height ? size.height : 'auto'})`);
                 await this.image.resize(size.width, size.height).toFile('/tmp/' + size.tag + this.ext);
-                data = await storage.bucket(config.storage.uploadBucket).upload('/tmp/' + size.tag + this.ext, {
+                data = await storage.bucket(this.uploadConfig.bucket).upload('/tmp/' + size.tag + this.ext, {
                     destination: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + '_' + size.tag + this.ext,
                     gzip: true
                 });

@@ -8,15 +8,15 @@ const path_1 = __importDefault(require("path"));
 /* Module */
 const byteToKByteConv = 1024;
 class FileUpload {
-    constructor(config, debug) {
-        this.dir = config && config.dir ? config.dir : undefined;
+    constructor(config, uploadConfig, debug) {
         this.config = config;
+        this.uploadConfig = uploadConfig;
         this.debug = debug;
     }
     async init(req) {
         if (req.files) {
             this.debug('Parsing uploaded file...');
-            const file = req.files[this.config.name] ? req.files[this.config.name] : undefined;
+            const file = req.files[this.uploadConfig.name] ? req.files[this.uploadConfig.name] : undefined;
             this.file = Array.isArray(file) ? file[0] : file;
             if (this.file) {
                 this.ext = path_1.default.extname(this.file.name).toLowerCase();
@@ -51,11 +51,11 @@ class FileUpload {
         this.debug('File accepted');
         return undefined;
     }
-    async upload(config, ref) {
+    async upload(ref) {
         const json = {};
-        const uploadPath = config.path + this.dir;
-        const uploadUrl = config.url + this.dir;
-        const name = this.config.name;
+        const uploadPath = this.config.path + this.uploadConfig.dir;
+        const uploadUrl = this.config.url + this.uploadConfig.dir;
+        const name = this.uploadConfig.name;
         this.debug('Uploading file...');
         if (!await fs_extra_1.default.pathExists(uploadPath + ref)) {
             this.debug('Creating upload directory...');
@@ -64,19 +64,19 @@ class FileUpload {
         this.debug('Saving file');
         await this.file.mv(uploadPath + ref + '/' + name + this.ext);
         json.original = uploadUrl + ref + '/' + name + this.ext;
-        json.filename = this.dir + '/' + ref + '/' + name + this.ext;
+        json.filename = this.uploadConfig.dir + '/' + ref + '/' + name + this.ext;
         json.ext = this.ext;
         return Promise.resolve(json);
     }
     getExt() {
-        if (this.config && this.config.rules && this.config.rules.ext) {
-            return this.config.rules.ext;
+        if (this.uploadConfig && this.uploadConfig.rules && this.uploadConfig.rules.ext) {
+            return this.uploadConfig.rules.ext;
         }
         return [this.ext];
     }
     getSizeInKBytes() {
-        if (this.config && this.config.rules && this.config.rules.sizeInKBytes) {
-            return this.config.rules.sizeInKBytes;
+        if (this.uploadConfig && this.uploadConfig.rules && this.uploadConfig.rules.sizeInKBytes) {
+            return this.uploadConfig.rules.sizeInKBytes;
         }
         return this.file.data.length;
     }

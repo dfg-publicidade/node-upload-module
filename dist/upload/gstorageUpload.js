@@ -8,23 +8,23 @@ const mime_1 = __importDefault(require("mime"));
 const fileUpload_1 = __importDefault(require("./fileUpload"));
 /* Module */
 class GStorageUpload extends fileUpload_1.default {
-    constructor(config, debug) {
-        super(config, debug);
+    constructor(config, uploadConfig, debug) {
+        super(config, uploadConfig, debug);
     }
-    async upload(config, ref) {
+    async upload(ref) {
         const json = {};
-        const name = this.config.prefix;
+        const name = this.uploadConfig.prefix;
         this.debug('Uploading file...');
         const storage = new storage_1.Storage();
         this.debug('Saving file');
         json.ext = this.ext;
-        const data = await storage.bucket(config.storage.uploadBucket).upload(this.file.tempFilePath, {
-            destination: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + this.dir + ref + '/' + name + this.ext,
+        const data = await storage.bucket(this.uploadConfig.bucket).upload(this.file.tempFilePath, {
+            destination: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + this.uploadConfig.dir + ref + '/' + name + this.ext,
             gzip: true,
             contentType: mime_1.default.lookup(this.file.tempFilePath)
         });
         return Promise.resolve({
-            path: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + this.dir + ref + '/' + name + this.ext,
+            path: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + this.uploadConfig.dir + ref + '/' + name + this.ext,
             filename: name + this.ext,
             original: 'https://' + data[0].metadata.bucket + '/' + data[0].metadata.name
         });
