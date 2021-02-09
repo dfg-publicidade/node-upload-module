@@ -26,7 +26,7 @@ class S3ImageUpload extends imageUpload_1.default {
         json.ext = this.ext;
         let data = await s3Uploader_1.default.upload(s3, {
             Bucket: config.aws.bucket,
-            Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext,
+            Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + this.dir + ref + '/' + name + this.ext,
             Body: this.file.data
         });
         json.path = ref + this.ext;
@@ -38,7 +38,7 @@ class S3ImageUpload extends imageUpload_1.default {
                 await this.image.resize(size.width, size.height).toFile('/tmp/' + size.tag + this.ext);
                 data = await s3Uploader_1.default.upload(s3, {
                     Bucket: config.aws.bucket,
-                    Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + '/' + size.tag + this.ext,
+                    Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + this.dir + ref + '/' + name + size.tag + this.ext,
                     Body: fs_extra_1.default.readFileSync('/tmp/' + size.tag + this.ext)
                 });
                 json[size.tag] = data.Location;

@@ -23,11 +23,11 @@ class S3Upload extends fileUpload_1.default {
         json.ext = this.ext;
         const data = await s3Uploader_1.default.upload(s3, {
             Bucket: config.aws.bucket,
-            Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + config.dir + ref + this.ext,
+            Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + this.dir + ref + '/' + name + this.ext,
             Body: this.file.data
         });
         return Promise.resolve({
-            path: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + config.dir + ref + this.ext,
+            path: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + this.dir + ref + '/' + name + this.ext,
             filename: name + this.ext,
             original: data.Location
         });

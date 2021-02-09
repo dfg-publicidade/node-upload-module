@@ -31,13 +31,13 @@ class GStorageUpload extends FileUpload implements Upload {
         json.ext = this.ext;
 
         const data: any = await storage.bucket(config.storage.uploadBucket).upload(this.file.tempFilePath, {
-            destination: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext,
+            destination: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + this.dir + ref + '/' + name + this.ext,
             gzip: true,
             contentType: mime.lookup(this.file.tempFilePath)
         });
 
         return Promise.resolve({
-            path: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext,
+            path: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '')  + this.dir + ref + '/' + name + this.ext,
             filename: name + this.ext,
             original: 'https://' + data[0].metadata.bucket + '/' + data[0].metadata.name
         });
