@@ -29,7 +29,7 @@ class S3Download extends FileDownload implements Download {
         return s3.getObject({
             Bucket: this.cloudConfig.bucket,
             Key: path
-        });
+        }).promise();
     }
 }
 

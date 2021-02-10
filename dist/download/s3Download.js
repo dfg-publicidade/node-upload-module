@@ -23,7 +23,7 @@ class S3Download extends fileDownload_1.default {
         return s3.getObject({
             Bucket: this.cloudConfig.bucket,
             Key: path
-        });
+        }).promise();
     }
 }
 exports.default = S3Download;
