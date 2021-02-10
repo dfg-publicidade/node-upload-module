@@ -5,19 +5,21 @@ import Download from '../interfaces/download';
 import FileDownload from './fileDownload';
 
 /* Module */
+const debug: appDebugger.IDebugger = appDebugger('module:download-s3');
+
 class S3Download extends FileDownload implements Download {
     private config: any;
     private cloudConfig: CloudConfig;
 
-    public constructor(config: any, cloudConfig: CloudConfig, debug: appDebugger.IDebugger) {
-        super(debug);
+    public constructor(config: any, cloudConfig: CloudConfig) {
+        super();
 
         this.config = config;
         this.cloudConfig = cloudConfig;
     }
 
     public async download(path: string): Promise<any> {
-        this.debug('Downloading file...');
+        debug('Downloading file...');
 
         const s3: S3 = new AWS.S3({
             accessKeyId: this.config.aws.key,

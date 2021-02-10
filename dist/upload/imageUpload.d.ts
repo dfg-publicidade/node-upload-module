@@ -1,4 +1,3 @@
-import appDebugger from 'debug';
 import { Request } from 'express';
 import { Sharp } from 'sharp';
 import ImageUploadError from '../enums/imageUploadError';
@@ -9,7 +8,7 @@ declare class ImageUpload extends FileUpload implements Upload {
     image: Sharp;
     metadata: any;
     protected uploadConfig: ImageUploadConfig;
-    constructor(config: any, uploadConfig: ImageUploadConfig, debug: appDebugger.IDebugger);
+    constructor(config: any, uploadConfig: ImageUploadConfig);
     init(req: Request): Promise<void>;
     hasImage(): boolean;
     getImage(): Sharp;

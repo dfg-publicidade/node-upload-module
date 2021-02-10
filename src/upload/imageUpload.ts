@@ -9,14 +9,16 @@ import Upload from '../interfaces/upload';
 import FileUpload from './fileUpload';
 
 /* Module */
+const debug: appDebugger.IDebugger = appDebugger('module:upload-image');
+
 class ImageUpload extends FileUpload implements Upload {
     public image: Sharp;
     public metadata: any;
 
     protected uploadConfig: ImageUploadConfig;
 
-    public constructor(config: any, uploadConfig: ImageUploadConfig, debug: appDebugger.IDebugger) {
-        super(config, uploadConfig, debug);
+    public constructor(config: any, uploadConfig: ImageUploadConfig) {
+        super(config, uploadConfig);
     }
 
     public async init(req: Request): Promise<void> {
@@ -49,23 +51,23 @@ class ImageUpload extends FileUpload implements Upload {
         }
 
         if (!this.image || !this.metadata) {
-            this.debug('File file not received');
+            debug('File file not received');
             return 'EMPTY_FILE';
         }
         else if (width && this.metadata.width !== width) {
-            this.debug('The file sizes are not correct');
+            debug('The file sizes are not correct');
             return 'OUT_OF_DIMENSION';
         }
         else if (height && this.metadata.height !== height) {
-            this.debug('The file sizes are not correct');
+            debug('The file sizes are not correct');
             return 'OUT_OF_DIMENSION';
         }
         else if (this.metadata.space !== 'rgb' && this.metadata.space !== 'srgb') {
-            this.debug('The color mode is not correct');
+            debug('The color mode is not correct');
             return 'INVALID_MODE';
         }
 
-        this.debug('Image accepted');
+        debug('Image accepted');
 
         return undefined;
     }
@@ -80,21 +82,21 @@ class ImageUpload extends FileUpload implements Upload {
         const width: number = this.getWidth();
         const height: number = this.getHeight();
 
-        this.debug('Uploading file and doing resizes...');
+        debug('Uploading file and doing resizes...');
 
         if (!await fs.pathExists(uploadPath + ref)) {
-            this.debug('Creating upload directory...');
+            debug('Creating upload directory...');
             await fs.mkdirs(uploadPath + ref);
         }
 
-        this.debug(`Saving original (${width}x${height})`);
+        debug(`Saving original (${width}x${height})`);
         await this.image.toFile(uploadPath + ref + '/' + name + this.ext);
         json.original = uploadUrl + ref + '/' + name + this.ext;
         json.filename = this.uploadConfig.dir + '/' + ref + '/' + name + this.ext;
 
         if (this.uploadConfig.sizes) {
             for (const size of this.uploadConfig.sizes) {
-                this.debug(`Resizing to: ${size.tag} (${size.width}x${size.height})`);
+                debug(`Resizing to: ${size.tag} (${size.width}x${size.height})`);
                 await this.image.resize(size.width, size.height).toFile(uploadPath + ref + '/' + name + '_' + size.tag + this.ext);
                 json[size.tag] = uploadUrl + ref + '/' + name + '_' + size.tag + this.ext;
             }

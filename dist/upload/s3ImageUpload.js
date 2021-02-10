@@ -4,13 +4,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const aws_sdk_1 = __importDefault(require("aws-sdk"));
+const debug_1 = __importDefault(require("debug"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const s3Uploader_1 = __importDefault(require("../s3/s3Uploader"));
 const imageUpload_1 = __importDefault(require("./imageUpload"));
 /* Module */
+const debug = debug_1.default('module:upload-image-s3');
 class S3ImageUpload extends imageUpload_1.default {
-    constructor(config, uploadConfig, debug) {
-        super(config, uploadConfig, debug);
+    constructor(config, uploadConfig) {
+        super(config, uploadConfig);
         this.s3 = new aws_sdk_1.default.S3({
             accessKeyId: this.config.aws.key,
             secretAccessKey: this.config.aws.secret
@@ -21,8 +23,8 @@ class S3ImageUpload extends imageUpload_1.default {
         const name = this.uploadConfig.prefix.replace(/\//ig, '_');
         const width = this.getWidth();
         const height = this.getHeight();
-        this.debug('Uploading file and doing resizes...');
-        this.debug(`Saving original (${width}x${height})`);
+        debug('Uploading file and doing resizes...');
+        debug(`Saving original (${width}x${height})`);
         json.ext = this.ext;
         let data = await s3Uploader_1.default.upload(this.s3, {
             Bucket: this.config.aws.bucket,
@@ -34,7 +36,7 @@ class S3ImageUpload extends imageUpload_1.default {
         json.original = data.Location;
         if (this.uploadConfig.sizes) {
             for (const size of this.uploadConfig.sizes) {
-                this.debug(`Resizing to: ${size.tag} (${size.width ? size.width : 'auto'}x${size.height ? size.height : 'auto'})`);
+                debug(`Resizing to: ${size.tag} (${size.width ? size.width : 'auto'}x${size.height ? size.height : 'auto'})`);
                 await this.image.resize(size.width, size.height).toFile('/tmp/' + size.tag + this.ext);
                 data = await s3Uploader_1.default.upload(this.s3, {
                     Bucket: this.config.aws.bucket,

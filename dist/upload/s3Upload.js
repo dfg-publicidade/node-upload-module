@@ -4,12 +4,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const aws_sdk_1 = __importDefault(require("aws-sdk"));
+const debug_1 = __importDefault(require("debug"));
 const s3Uploader_1 = __importDefault(require("../s3/s3Uploader"));
 const fileUpload_1 = __importDefault(require("./fileUpload"));
 /* Module */
+const debug = debug_1.default('module:upload-s3');
 class S3Upload extends fileUpload_1.default {
-    constructor(config, uploadConfig, debug) {
-        super(config, uploadConfig, debug);
+    constructor(config, uploadConfig) {
+        super(config, uploadConfig);
         this.s3 = new aws_sdk_1.default.S3({
             accessKeyId: this.config.aws.key,
             secretAccessKey: this.config.aws.secret
@@ -18,7 +20,7 @@ class S3Upload extends fileUpload_1.default {
     async upload(ref) {
         const json = {};
         const name = this.uploadConfig.prefix.replace(/\//ig, '_');
-        this.debug('Uploading file...');
+        debug('Uploading file...');
         json.ext = this.ext;
         const data = await s3Uploader_1.default.upload(this.s3, {
             Bucket: this.uploadConfig.bucket,

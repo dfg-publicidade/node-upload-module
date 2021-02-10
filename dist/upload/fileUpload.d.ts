@@ -1,4 +1,3 @@
-import appDebugger from 'debug';
 import { Request } from 'express';
 import { UploadedFile } from 'express-fileupload';
 import UploadError from '../enums/uploadError';
@@ -7,10 +6,9 @@ import UploadConfig from '../interfaces/uploadConfig';
 declare class FileUpload implements Upload {
     protected config: any;
     protected uploadConfig: UploadConfig;
-    protected debug: appDebugger.IDebugger;
     protected file: UploadedFile;
     protected ext: string;
-    constructor(config: any, uploadConfig: UploadConfig, debug: appDebugger.IDebugger);
+    constructor(config: any, uploadConfig: UploadConfig);
     init(req: Request): Promise<void>;
     hasFile(): boolean;
     getFile(): UploadedFile;

@@ -7,13 +7,15 @@ import Upload from '../interfaces/upload';
 import FileUpload from './fileUpload';
 
 /* Module */
+const debug: appDebugger.IDebugger = appDebugger('module:upload-gstorage');
+
 class GStorageUpload extends FileUpload implements Upload {
     protected uploadConfig: CloudUploadConfig;
     protected file: UploadedFile;
     protected ext: string;
 
-    public constructor(config: any, uploadConfig: CloudUploadConfig, debug: appDebugger.IDebugger) {
-        super(config, uploadConfig, debug);
+    public constructor(config: any, uploadConfig: CloudUploadConfig) {
+        super(config, uploadConfig);
     }
 
     public async upload(ref: string): Promise<any> {
@@ -21,11 +23,11 @@ class GStorageUpload extends FileUpload implements Upload {
 
         const name: string = this.uploadConfig.prefix;
 
-        this.debug('Uploading file...');
+        debug('Uploading file...');
 
         const storage: Storage = new Storage();
 
-        this.debug('Saving file');
+        debug('Saving file');
 
         json.ext = this.ext;
 

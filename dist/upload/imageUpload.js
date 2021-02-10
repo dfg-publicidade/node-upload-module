@@ -3,13 +3,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const debug_1 = __importDefault(require("debug"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const sharp_1 = __importDefault(require("sharp"));
 const fileUpload_1 = __importDefault(require("./fileUpload"));
 /* Module */
+const debug = debug_1.default('module:upload-image');
 class ImageUpload extends fileUpload_1.default {
-    constructor(config, uploadConfig, debug) {
-        super(config, uploadConfig, debug);
+    constructor(config, uploadConfig) {
+        super(config, uploadConfig);
     }
     async init(req) {
         await super.init(req);
@@ -33,22 +35,22 @@ class ImageUpload extends fileUpload_1.default {
             return uploadError;
         }
         if (!this.image || !this.metadata) {
-            this.debug('File file not received');
+            debug('File file not received');
             return 'EMPTY_FILE';
         }
         else if (width && this.metadata.width !== width) {
-            this.debug('The file sizes are not correct');
+            debug('The file sizes are not correct');
             return 'OUT_OF_DIMENSION';
         }
         else if (height && this.metadata.height !== height) {
-            this.debug('The file sizes are not correct');
+            debug('The file sizes are not correct');
             return 'OUT_OF_DIMENSION';
         }
         else if (this.metadata.space !== 'rgb' && this.metadata.space !== 'srgb') {
-            this.debug('The color mode is not correct');
+            debug('The color mode is not correct');
             return 'INVALID_MODE';
         }
-        this.debug('Image accepted');
+        debug('Image accepted');
         return undefined;
     }
     async upload(ref) {
@@ -58,18 +60,18 @@ class ImageUpload extends fileUpload_1.default {
         const name = this.uploadConfig.name;
         const width = this.getWidth();
         const height = this.getHeight();
-        this.debug('Uploading file and doing resizes...');
+        debug('Uploading file and doing resizes...');
         if (!await fs_extra_1.default.pathExists(uploadPath + ref)) {
-            this.debug('Creating upload directory...');
+            debug('Creating upload directory...');
             await fs_extra_1.default.mkdirs(uploadPath + ref);
         }
-        this.debug(`Saving original (${width}x${height})`);
+        debug(`Saving original (${width}x${height})`);
         await this.image.toFile(uploadPath + ref + '/' + name + this.ext);
         json.original = uploadUrl + ref + '/' + name + this.ext;
         json.filename = this.uploadConfig.dir + '/' + ref + '/' + name + this.ext;
         if (this.uploadConfig.sizes) {
             for (const size of this.uploadConfig.sizes) {
-                this.debug(`Resizing to: ${size.tag} (${size.width}x${size.height})`);
+                debug(`Resizing to: ${size.tag} (${size.width}x${size.height})`);
                 await this.image.resize(size.width, size.height).toFile(uploadPath + ref + '/' + name + '_' + size.tag + this.ext);
                 json[size.tag] = uploadUrl + ref + '/' + name + '_' + size.tag + this.ext;
             }

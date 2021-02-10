@@ -3,15 +3,11 @@ import fs from 'fs-extra';
 import Download from '../interfaces/download';
 
 /* Module */
+const debug: appDebugger.IDebugger = appDebugger('module:download-file');
+
 class FileDownload implements Download {
-    protected debug: appDebugger.IDebugger;
-
-    public constructor(debug: appDebugger.IDebugger) {
-        this.debug = debug;
-    }
-
     public async download(path: string): Promise<any> {
-        this.debug('Downloading file...');
+        debug('Downloading file...');
 
         return fs.promises.readFile(path);
     }

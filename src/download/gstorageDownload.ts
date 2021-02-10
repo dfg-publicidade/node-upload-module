@@ -5,23 +5,22 @@ import Download from '../interfaces/download';
 import FileDownload from './fileDownload';
 
 /* Module */
+const debug: appDebugger.IDebugger = appDebugger('module:download-gstorage');
+
 class GStorageDownload extends FileDownload implements Download {
-    private config: any;
     private cloudConfig: CloudConfig;
 
-    public constructor(config: any, cloudConfig: CloudConfig, debug: appDebugger.IDebugger) {
-        super(debug);
-
-        this.config = config;
+    public constructor(cloudConfig: CloudConfig) {
+        super();
         this.cloudConfig = cloudConfig;
     }
 
     public async download(path: string): Promise<any> {
-        this.debug('Downloading file...');
+        debug('Downloading file...');
 
         const storage: Storage = new Storage();
 
-        this.debug('Saving file');
+        debug('Saving file');
 
         return storage.bucket(this.cloudConfig.bucket).file(path).download();
     }

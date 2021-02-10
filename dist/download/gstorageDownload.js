@@ -4,18 +4,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const storage_1 = require("@google-cloud/storage");
+const debug_1 = __importDefault(require("debug"));
 const fileDownload_1 = __importDefault(require("./fileDownload"));
 /* Module */
+const debug = debug_1.default('module:download-gstorage');
 class GStorageDownload extends fileDownload_1.default {
-    constructor(config, cloudConfig, debug) {
-        super(debug);
-        this.config = config;
+    constructor(cloudConfig) {
+        super();
         this.cloudConfig = cloudConfig;
     }
     async download(path) {
-        this.debug('Downloading file...');
+        debug('Downloading file...');
         const storage = new storage_1.Storage();
-        this.debug('Saving file');
+        debug('Saving file');
         return storage.bucket(this.cloudConfig.bucket).file(path).download();
     }
 }

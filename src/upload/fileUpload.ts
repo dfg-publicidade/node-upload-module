@@ -8,24 +8,24 @@ import Upload from '../interfaces/upload';
 import UploadConfig from '../interfaces/uploadConfig';
 
 /* Module */
+const debug: appDebugger.IDebugger = appDebugger('module:upload-file');
+
 const byteToKByteConv: number = 1024;
 
 class FileUpload implements Upload {
     protected config: any;
     protected uploadConfig: UploadConfig;
-    protected debug: appDebugger.IDebugger;
     protected file: UploadedFile;
     protected ext: string;
 
-    public constructor(config: any, uploadConfig: UploadConfig, debug: appDebugger.IDebugger) {
+    public constructor(config: any, uploadConfig: UploadConfig) {
         this.config = config;
         this.uploadConfig = uploadConfig;
-        this.debug = debug;
     }
 
     public async init(req: Request): Promise<void> {
         if (req.files) {
-            this.debug('Parsing uploaded file...');
+            debug('Parsing uploaded file...');
 
             const file: UploadedFile | UploadedFile[] = req.files[this.uploadConfig.name] ? req.files[this.uploadConfig.name] : undefined;
 
@@ -56,19 +56,19 @@ class FileUpload implements Upload {
         const ext: string[] = this.getExt();
 
         if (!this.file || !this.file.name) {
-            this.debug('File file not received');
+            debug('File file not received');
             return 'EMPTY_FILE';
         }
         else if (sizeInKBytes && this.file.data.length > sizeInKBytes * byteToKByteConv) {
-            this.debug('The file size exceeds the allowed limits');
+            debug('The file size exceeds the allowed limits');
             return 'FILE_TOO_LARGE';
         }
         else if (ext.indexOf(this.ext) === -1) {
-            this.debug('The file has an invalid extension');
+            debug('The file has an invalid extension');
             return 'INVALID_EXTENSION';
         }
 
-        this.debug('File accepted');
+        debug('File accepted');
 
         return undefined;
     }
@@ -81,14 +81,14 @@ class FileUpload implements Upload {
 
         const name: string = this.uploadConfig.name;
 
-        this.debug('Uploading file...');
+        debug('Uploading file...');
 
         if (!await fs.pathExists(uploadPath + ref)) {
-            this.debug('Creating upload directory...');
+            debug('Creating upload directory...');
             await fs.mkdirs(uploadPath + ref);
         }
 
-        this.debug('Saving file');
+        debug('Saving file');
 
         await this.file.mv(uploadPath + ref + '/' + name + this.ext);
         json.original = uploadUrl + ref + '/' + name + this.ext;

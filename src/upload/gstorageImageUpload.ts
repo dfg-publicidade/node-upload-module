@@ -6,11 +6,13 @@ import Upload from '../interfaces/upload';
 import ImageUpload from './imageUpload';
 
 /* Module */
+const debug: appDebugger.IDebugger = appDebugger('module:upload-image-gstorage');
+
 class GStorageImageUpload extends ImageUpload implements Upload {
     protected uploadConfig: CloudImageUploadConfig;
 
-    public constructor(config: any, uploadConfig: CloudImageUploadConfig, debug: appDebugger.IDebugger) {
-        super(config, uploadConfig, debug);
+    public constructor(config: any, uploadConfig: CloudImageUploadConfig) {
+        super(config, uploadConfig);
     }
 
     public async upload(ref: string): Promise<any> {
@@ -20,11 +22,11 @@ class GStorageImageUpload extends ImageUpload implements Upload {
         const width: number = this.getWidth();
         const height: number = this.getHeight();
 
-        this.debug('Uploading file and doing resizes...');
+        debug('Uploading file and doing resizes...');
 
         const storage: Storage = new Storage();
 
-        this.debug(`Saving original (${width}x${height})`);
+        debug(`Saving original (${width}x${height})`);
 
         json.ext = this.ext;
 
@@ -40,7 +42,7 @@ class GStorageImageUpload extends ImageUpload implements Upload {
 
         if (this.uploadConfig.sizes) {
             for (const size of this.uploadConfig.sizes) {
-                this.debug(`Resizing to: ${size.tag} (${size.width ? size.width : 'auto'}x${size.height ? size.height : 'auto'})`);
+                debug(`Resizing to: ${size.tag} (${size.width ? size.width : 'auto'}x${size.height ? size.height : 'auto'})`);
 
                 await this.image.resize(size.width, size.height).toFile('/tmp/' + size.tag + this.ext);
 

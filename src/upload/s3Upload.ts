@@ -7,14 +7,16 @@ import S3Uploader from '../s3/s3Uploader';
 import FileUpload from './fileUpload';
 
 /* Module */
+const debug: appDebugger.IDebugger = appDebugger('module:upload-s3');
+
 class S3Upload extends FileUpload implements Upload {
     protected uploadConfig: CloudUploadConfig;
     protected file: UploadedFile;
     protected ext: string;
     private s3: S3;
 
-    public constructor(config: any, uploadConfig: CloudUploadConfig, debug: appDebugger.IDebugger) {
-        super(config, uploadConfig, debug);
+    public constructor(config: any, uploadConfig: CloudUploadConfig) {
+        super(config, uploadConfig);
 
         this.s3 = new AWS.S3({
             accessKeyId: this.config.aws.key,
@@ -27,7 +29,7 @@ class S3Upload extends FileUpload implements Upload {
 
         const name: string = this.uploadConfig.prefix.replace(/\//ig, '_');
 
-        this.debug('Uploading file...');
+        debug('Uploading file...');
 
         json.ext = this.ext;
 
