@@ -40,7 +40,7 @@ class S3ImageUpload extends ImageUpload implements Upload {
             Body: this.file.data
         });
 
-        json.path = ref + this.ext;
+        json.path = (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + this.uploadConfig.dir + ref + '/' + name + this.ext;
         json.filename = name + this.ext;
         json.original = data.Location;
 
