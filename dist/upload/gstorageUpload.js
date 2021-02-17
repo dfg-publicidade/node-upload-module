@@ -29,7 +29,7 @@ class GStorageUpload extends fileUpload_1.default {
         });
         return Promise.resolve({
             path: filename,
-            filename: `${name}${this.ext}`,
+            filename: name + this.ext,
             original: `https://${data[0].metadata.bucket}/${data[0].metadata.name}`
         });
     }

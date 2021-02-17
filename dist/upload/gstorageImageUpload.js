@@ -25,12 +25,12 @@ class GStorageImageUpload extends imageUpload_1.default {
         const env = (process.env.NODE_ENV !== 'production' ? `${process.env.NODE_ENV}/` : '');
         const filename = `${name}/${ref}${this.ext}`;
         let data = await storage.bucket(this.uploadConfig.bucket).upload(this.file.tempFilePath, {
-            destination: `${env}${filename}`,
+            destination: env + filename,
             gzip: true,
             contentType: mime_1.default.lookup(this.file.tempFilePath)
         });
-        json.path = `${env}${filename}`;
-        json.filename = `${name}${this.ext}`;
+        json.path = env + filename;
+        json.filename = name + this.ext;
         json.original = `https://${data[0].metadata.bucket}/${data[0].metadata.name}`;
         if (this.uploadConfig.sizes) {
             for (const size of this.uploadConfig.sizes) {

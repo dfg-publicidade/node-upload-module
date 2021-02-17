@@ -34,13 +34,13 @@ class GStorageImageUpload extends ImageUpload implements Upload {
         const filename: string = `${name}/${ref}${this.ext}`;
 
         let data: any = await storage.bucket(this.uploadConfig.bucket).upload(this.file.tempFilePath, {
-            destination: `${env}${filename}`,
+            destination: env + filename,
             gzip: true,
             contentType: mime.lookup(this.file.tempFilePath)
         });
 
-        json.path = `${env}${filename}`;
-        json.filename = `${name}${this.ext}`;
+        json.path = env + filename;
+        json.filename = name + this.ext;
         json.original = `https://${data[0].metadata.bucket}/${data[0].metadata.name}`;
 
         if (this.uploadConfig.sizes) {

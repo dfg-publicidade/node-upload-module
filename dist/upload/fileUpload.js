@@ -54,18 +54,18 @@ class FileUpload {
     }
     async upload(ref) {
         const json = {};
-        const uploadPath = `${this.config.path}${this.uploadConfig.dir}`;
-        const uploadUrl = `${this.config.url}${this.uploadConfig.dir}`;
+        const uploadPath = this.config.path + this.uploadConfig.dir;
+        const uploadUrl = this.config.url + this.uploadConfig.dir;
         const name = this.uploadConfig.name;
         debug('Uploading file...');
-        if (!await fs_extra_1.default.pathExists(`${uploadPath}${ref}`)) {
+        if (!await fs_extra_1.default.pathExists(uploadPath + ref)) {
             debug('Creating upload directory...');
-            await fs_extra_1.default.mkdirs(`${uploadPath}${ref}`);
+            await fs_extra_1.default.mkdirs(uploadPath + ref);
         }
         debug('Saving file');
         const filename = `${ref}/${name}${this.ext}`;
-        await this.file.mv(`${uploadPath}${filename}`);
-        json.original = `${uploadUrl}${filename}`;
+        await this.file.mv(uploadPath + filename);
+        json.original = uploadUrl + filename;
         json.filename = `${this.uploadConfig.dir}/${filename}`;
         json.ext = this.ext;
         return Promise.resolve(json);

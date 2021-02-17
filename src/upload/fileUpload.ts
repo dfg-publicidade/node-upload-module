@@ -76,24 +76,24 @@ class FileUpload implements Upload {
     public async upload(ref: string): Promise<any> {
         const json: any = {};
 
-        const uploadPath: string = `${this.config.path}${this.uploadConfig.dir}`;
-        const uploadUrl: string = `${this.config.url}${this.uploadConfig.dir}`;
+        const uploadPath: string = this.config.path + this.uploadConfig.dir;
+        const uploadUrl: string = this.config.url + this.uploadConfig.dir;
 
         const name: string = this.uploadConfig.name;
 
         debug('Uploading file...');
 
-        if (!await fs.pathExists(`${uploadPath}${ref}`)) {
+        if (!await fs.pathExists(uploadPath + ref)) {
             debug('Creating upload directory...');
-            await fs.mkdirs(`${uploadPath}${ref}`);
+            await fs.mkdirs(uploadPath + ref);
         }
 
         debug('Saving file');
 
         const filename: string = `${ref}/${name}${this.ext}`;
 
-        await this.file.mv(`${uploadPath}${filename}`);
-        json.original = `${uploadUrl}${filename}`;
+        await this.file.mv(uploadPath + filename);
+        json.original = uploadUrl + filename;
         json.filename = `${this.uploadConfig.dir}/${filename}`;
 
         json.ext = this.ext;

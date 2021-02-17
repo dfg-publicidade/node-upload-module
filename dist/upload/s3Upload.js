@@ -31,7 +31,7 @@ class S3Upload extends fileUpload_1.default {
         });
         return Promise.resolve({
             path: filename,
-            filename: `${name}${this.ext}`,
+            filename: name + this.ext,
             original: data.Location
         });
     }

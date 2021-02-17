@@ -34,7 +34,7 @@ class S3ImageUpload extends imageUpload_1.default {
             Body: this.file.data
         });
         json.path = filename;
-        json.filename = `${name}${this.ext}`;
+        json.filename = name + this.ext;
         json.original = data.Location;
         if (this.uploadConfig.sizes) {
             for (const size of this.uploadConfig.sizes) {
