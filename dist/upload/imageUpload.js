@@ -55,25 +55,27 @@ class ImageUpload extends fileUpload_1.default {
     }
     async upload(ref) {
         const json = {};
-        const uploadPath = this.config.path + this.uploadConfig.dir;
-        const uploadUrl = this.config.url + this.uploadConfig.dir;
+        const uploadPath = `${this.config.path}${this.uploadConfig.dir}`;
+        const uploadUrl = `${this.config.url}${this.uploadConfig.dir}`;
         const name = this.uploadConfig.name;
         const width = this.getWidth();
         const height = this.getHeight();
         debug('Uploading file and doing resizes...');
-        if (!await fs_extra_1.default.pathExists(uploadPath + ref)) {
+        if (!await fs_extra_1.default.pathExists(`${uploadPath}${ref}`)) {
             debug('Creating upload directory...');
-            await fs_extra_1.default.mkdirs(uploadPath + ref);
+            await fs_extra_1.default.mkdirs(`${uploadPath}${ref}`);
         }
+        const filename = `${ref}/${name}${this.ext}`;
         debug(`Saving original (${width}x${height})`);
-        await this.image.toFile(uploadPath + ref + '/' + name + this.ext);
-        json.original = uploadUrl + ref + '/' + name + this.ext;
-        json.filename = this.uploadConfig.dir + '/' + ref + '/' + name + this.ext;
+        await this.image.toFile(`${uploadPath}${filename}`);
+        json.original = `${uploadUrl}${filename}`;
+        json.filename = `${this.uploadConfig.dir}/${filename}`;
         if (this.uploadConfig.sizes) {
             for (const size of this.uploadConfig.sizes) {
                 debug(`Resizing to: ${size.tag} (${size.width}x${size.height})`);
-                await this.image.resize(size.width, size.height).toFile(uploadPath + ref + '/' + name + '_' + size.tag + this.ext);
-                json[size.tag] = uploadUrl + ref + '/' + name + '_' + size.tag + this.ext;
+                const resizedImagePath = `${ref}/${name}_${size.tag}${this.ext}`;
+                await this.image.resize(size.width, size.height).toFile(`${uploadPath}${resizedImagePath}`);
+                json[size.tag] = `${uploadUrl}${resizedImagePath}`;
             }
         }
         json.ext = this.ext;

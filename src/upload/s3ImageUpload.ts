@@ -34,26 +34,31 @@ class S3ImageUpload extends ImageUpload implements Upload {
 
         json.ext = this.ext;
 
+        const env: string = (process.env.NODE_ENV !== 'production' ? `${process.env.NODE_ENV}/` : '');
+        const filename: string = `${env}${this.uploadConfig.dir}${ref}/${name}${this.ext}`;
+
         let data: any = await S3Uploader.upload(this.s3, {
             Bucket: this.config.aws.bucket,
-            Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + this.uploadConfig.dir + ref + '/' + name + this.ext,
+            Key: filename,
             Body: this.file.data
         });
 
-        json.path = (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + this.uploadConfig.dir + ref + '/' + name + this.ext;
-        json.filename = name + this.ext;
+        json.path = filename;
+        json.filename = `${name}${this.ext}`;
         json.original = data.Location;
 
         if (this.uploadConfig.sizes) {
             for (const size of this.uploadConfig.sizes) {
                 debug(`Resizing to: ${size.tag} (${size.width ? size.width : 'auto'}x${size.height ? size.height : 'auto'})`);
 
-                await this.image.resize(size.width, size.height).toFile('/tmp/' + size.tag + this.ext);
+                const resizedImagePath: string = `/tmp/${size.tag}${this.ext}`;
+
+                await this.image.resize(size.width, size.height).toFile(resizedImagePath);
 
                 data = await S3Uploader.upload(this.s3, {
                     Bucket: this.config.aws.bucket,
-                    Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + this.uploadConfig.dir + ref + '/' + name + size.tag + this.ext,
-                    Body: fs.readFileSync('/tmp/' + size.tag + this.ext)
+                    Key: `${env}${this.uploadConfig.dir}${ref}/${name}${size.tag}${this.ext}`,
+                    Body: fs.readFileSync(resizedImagePath)
                 });
 
                 json[size.tag] = data.Location;

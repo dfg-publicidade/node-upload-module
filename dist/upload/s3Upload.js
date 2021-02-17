@@ -22,14 +22,16 @@ class S3Upload extends fileUpload_1.default {
         const name = this.uploadConfig.prefix.replace(/\//ig, '_');
         debug('Uploading file...');
         json.ext = this.ext;
+        const env = (process.env.NODE_ENV !== 'production' ? `${process.env.NODE_ENV}/` : '');
+        const filename = `${env}${this.uploadConfig.dir}${ref}/${name}${this.ext}`;
         const data = await s3Uploader_1.default.upload(this.s3, {
             Bucket: this.uploadConfig.bucket,
-            Key: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + this.uploadConfig.dir + ref + '/' + name + this.ext,
+            Key: filename,
             Body: this.file.data
         });
         return Promise.resolve({
-            path: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + this.uploadConfig.dir + ref + '/' + name + this.ext,
-            filename: name + this.ext,
+            path: filename,
+            filename: `${name}${this.ext}`,
             original: data.Location
         });
     }

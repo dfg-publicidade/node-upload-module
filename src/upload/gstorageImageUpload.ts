@@ -30,28 +30,33 @@ class GStorageImageUpload extends ImageUpload implements Upload {
 
         json.ext = this.ext;
 
+        const env: string = (process.env.NODE_ENV !== 'production' ? `${process.env.NODE_ENV}/` : '');
+        const filename: string = `${name}/${ref}${this.ext}`;
+
         let data: any = await storage.bucket(this.uploadConfig.bucket).upload(this.file.tempFilePath, {
-            destination: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext,
+            destination: `${env}${filename}`,
             gzip: true,
             contentType: mime.lookup(this.file.tempFilePath)
         });
 
-        json.path = (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + this.ext;
-        json.filename = name + this.ext;
-        json.original = 'https://' + data[0].metadata.bucket + '/' + data[0].metadata.name;
+        json.path = `${env}${filename}`;
+        json.filename = `${name}${this.ext}`;
+        json.original = `https://${data[0].metadata.bucket}/${data[0].metadata.name}`;
 
         if (this.uploadConfig.sizes) {
             for (const size of this.uploadConfig.sizes) {
                 debug(`Resizing to: ${size.tag} (${size.width ? size.width : 'auto'}x${size.height ? size.height : 'auto'})`);
 
-                await this.image.resize(size.width, size.height).toFile('/tmp/' + size.tag + this.ext);
+                const resizedImagePath: string = `/tmp/${size.tag}${this.ext}`;
 
-                data = await storage.bucket(this.uploadConfig.bucket).upload('/tmp/' + size.tag + this.ext, {
-                    destination: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + name + '/' + ref + '_' + size.tag + this.ext,
+                await this.image.resize(size.width, size.height).toFile(resizedImagePath);
+
+                data = await storage.bucket(this.uploadConfig.bucket).upload(resizedImagePath, {
+                    destination: `${env}${name}/${ref}_${size.tag}${this.ext}`,
                     gzip: true
                 });
 
-                json[size.tag] = 'https://' + data[0].metadata.bucket + '/' + data[0].metadata.name;
+                json[size.tag] = `https://${data[0].metadata.bucket}/${data[0].metadata.name}`;
             }
         }
 

@@ -20,15 +20,17 @@ class GStorageUpload extends fileUpload_1.default {
         const storage = new storage_1.Storage();
         debug('Saving file');
         json.ext = this.ext;
+        const env = (process.env.NODE_ENV !== 'production' ? `${process.env.NODE_ENV}/` : '');
+        const filename = `${env}${this.uploadConfig.dir}${ref}/${name}${this.ext}`;
         const data = await storage.bucket(this.uploadConfig.bucket).upload(this.file.tempFilePath, {
-            destination: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + this.uploadConfig.dir + ref + '/' + name + this.ext,
+            destination: filename,
             gzip: true,
             contentType: mime_1.default.lookup(this.file.tempFilePath)
         });
         return Promise.resolve({
-            path: (process.env.NODE_ENV !== 'production' ? process.env.NODE_ENV + '/' : '') + this.uploadConfig.dir + ref + '/' + name + this.ext,
-            filename: name + this.ext,
-            original: 'https://' + data[0].metadata.bucket + '/' + data[0].metadata.name
+            path: filename,
+            filename: `${name}${this.ext}`,
+            original: `https://${data[0].metadata.bucket}/${data[0].metadata.name}`
         });
     }
 }
