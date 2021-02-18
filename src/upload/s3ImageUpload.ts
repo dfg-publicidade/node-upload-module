@@ -10,6 +10,7 @@ import ImageUpload from './imageUpload';
 const debug: appDebugger.IDebugger = appDebugger('module:upload-image-s3');
 
 class S3ImageUpload extends ImageUpload implements Upload {
+    protected uploadConfig: CloudImageUploadConfig;
     private s3: S3;
 
     public constructor(config: any, uploadConfig: CloudImageUploadConfig) {
@@ -37,7 +38,7 @@ class S3ImageUpload extends ImageUpload implements Upload {
         const filepath: string = `${env}${this.uploadConfig.dir}${filename}`;
 
         let data: any = await S3Uploader.upload(this.s3, {
-            Bucket: this.config.aws.bucket,
+            Bucket: this.uploadConfig.bucket,
             Key: filepath,
             Body: this.file.data
         });
@@ -58,7 +59,7 @@ class S3ImageUpload extends ImageUpload implements Upload {
                 await this.image.resize(size.width, size.height).toFile(resizedPath);
 
                 data = await S3Uploader.upload(this.s3, {
-                    Bucket: this.config.aws.bucket,
+                    Bucket: this.uploadConfig.bucket,
                     Key: `${env}/${this.uploadConfig.dir}${resizedName}`,
                     Body: fs.readFileSync(resizedPath)
                 });

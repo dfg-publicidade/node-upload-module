@@ -28,7 +28,7 @@ class S3ImageUpload extends imageUpload_1.default {
         debug(`Saving original (${width}x${height})`);
         const filepath = `${env}${this.uploadConfig.dir}${filename}`;
         let data = await s3Uploader_1.default.upload(this.s3, {
-            Bucket: this.config.aws.bucket,
+            Bucket: this.uploadConfig.bucket,
             Key: filepath,
             Body: this.file.data
         });
@@ -44,7 +44,7 @@ class S3ImageUpload extends imageUpload_1.default {
                 const resizedPath = `/tmp/${resizedName}`;
                 await this.image.resize(size.width, size.height).toFile(resizedPath);
                 data = await s3Uploader_1.default.upload(this.s3, {
-                    Bucket: this.config.aws.bucket,
+                    Bucket: this.uploadConfig.bucket,
                     Key: `${env}/${this.uploadConfig.dir}${resizedName}`,
                     Body: fs_extra_1.default.readFileSync(resizedPath)
                 });
