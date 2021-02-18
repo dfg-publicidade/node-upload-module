@@ -1,5 +1,6 @@
 import { Storage } from '@google-cloud/storage';
 import appDebugger from 'debug';
+import fs from 'fs-extra';
 import mime from 'mime';
 import CloudImageUploadConfig from '../interfaces/cloudImageUploadConfig';
 import Upload from '../interfaces/upload';
@@ -50,6 +51,11 @@ class GStorageImageUpload extends ImageUpload implements Upload {
 
                 const resizedName: string = `${ref}/${name}_${size.tag}${this.ext}`;
                 const resizedPath: string = `/tmp/${resizedName}`;
+
+                if (!await fs.pathExists(`/tmp/${ref}`)) {
+                    debug('Creating upload directory...');
+                    await fs.mkdirs(`/tmp/${ref}`);
+                }
 
                 await this.image.resize(size.width, size.height).toFile(resizedPath);
 

@@ -56,6 +56,11 @@ class S3ImageUpload extends ImageUpload implements Upload {
                 const resizedName: string = `${ref}/${name}_${size.tag}${this.ext}`;
                 const resizedPath: string = `/tmp/${resizedName}`;
 
+                if (!await fs.pathExists(`/tmp/${ref}`)) {
+                    debug('Creating upload directory...');
+                    await fs.mkdirs(`/tmp/${ref}`);
+                }
+
                 await this.image.resize(size.width, size.height).toFile(resizedPath);
 
                 data = await S3Uploader.upload(this.s3, {
