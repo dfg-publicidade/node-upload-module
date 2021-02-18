@@ -79,8 +79,6 @@ class FileUpload implements Upload {
         const uploadPath: string = this.config.path + this.uploadConfig.dir;
         const uploadUrl: string = this.config.url + this.uploadConfig.dir;
 
-        const name: string = this.uploadConfig.name;
-
         debug('Uploading file...');
 
         if (!await fs.pathExists(uploadPath + ref)) {
@@ -90,11 +88,12 @@ class FileUpload implements Upload {
 
         debug('Saving file');
 
-        const filename: string = `${ref}/${name}${this.ext}`;
+        let name: string = this.uploadConfig.prefix.replace(/\//ig, '_');
+        name = `${ref}/${name}${this.ext}`;
 
-        await this.file.mv(uploadPath + filename);
-        json.original = uploadUrl + filename;
-        json.filename = `${this.uploadConfig.dir}/${filename}`;
+        await this.file.mv(uploadPath + name);
+        json.original = uploadUrl + name;
+        json.filename = `${this.uploadConfig.dir}/${name}`;
 
         json.ext = this.ext;
 

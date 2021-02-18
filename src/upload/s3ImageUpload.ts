@@ -22,43 +22,45 @@ class S3ImageUpload extends ImageUpload implements Upload {
     }
 
     public async upload(ref: string): Promise<any> {
-        const json: any = {};
+        debug('Uploading file and doing resizes...');
+
+        const env: string = (process.env.NODE_ENV !== 'production' ? `${process.env.NODE_ENV}/` : '');
 
         const name: string = this.uploadConfig.prefix.replace(/\//ig, '_');
+        const filename: string = `${ref}/${name}${this.ext}`;
+
         const width: number = this.getWidth();
         const height: number = this.getHeight();
 
-        debug('Uploading file and doing resizes...');
-
         debug(`Saving original (${width}x${height})`);
 
-        json.ext = this.ext;
-
-        const env: string = (process.env.NODE_ENV !== 'production' ? `${process.env.NODE_ENV}/` : '');
-        const filename: string = `${env}${this.uploadConfig.dir}${ref}/${name}${this.ext}`;
+        const filepath: string = `${env}${this.uploadConfig.dir}${filename}`;
 
         let data: any = await S3Uploader.upload(this.s3, {
             Bucket: this.config.aws.bucket,
-            Key: filename,
+            Key: filepath,
             Body: this.file.data
         });
 
-        json.path = filename;
-        json.filename = name + this.ext;
+        const json: any = {};
+        json.path = filepath;
+        json.filename = filename;
         json.original = data.Location;
+        json.ext = this.ext;
 
         if (this.uploadConfig.sizes) {
             for (const size of this.uploadConfig.sizes) {
                 debug(`Resizing to: ${size.tag} (${size.width ? size.width : 'auto'}x${size.height ? size.height : 'auto'})`);
 
-                const resizedImagePath: string = `/tmp/${size.tag}${this.ext}`;
+                const resizedName: string = `${ref}/${name}_${size.tag}${this.ext}`;
+                const resizedPath: string = `/tmp/${resizedName}`;
 
-                await this.image.resize(size.width, size.height).toFile(resizedImagePath);
+                await this.image.resize(size.width, size.height).toFile(resizedPath);
 
                 data = await S3Uploader.upload(this.s3, {
                     Bucket: this.config.aws.bucket,
-                    Key: `${env}${this.uploadConfig.dir}${ref}/${name}${size.tag}${this.ext}`,
-                    Body: fs.readFileSync(resizedImagePath)
+                    Key: `${env}/${this.uploadConfig.dir}${resizedName}`,
+                    Body: fs.readFileSync(resizedPath)
                 });
 
                 json[size.tag] = data.Location;

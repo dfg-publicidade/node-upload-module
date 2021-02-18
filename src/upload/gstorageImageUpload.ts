@@ -16,43 +16,45 @@ class GStorageImageUpload extends ImageUpload implements Upload {
     }
 
     public async upload(ref: string): Promise<any> {
-        const json: any = {};
-
-        const name: string = this.uploadConfig.prefix;
-        const width: number = this.getWidth();
-        const height: number = this.getHeight();
-
         debug('Uploading file and doing resizes...');
 
         const storage: Storage = new Storage();
 
+        const env: string = (process.env.NODE_ENV !== 'production' ? `${process.env.NODE_ENV}/` : '');
+
+        const name: string = this.uploadConfig.prefix.replace(/\//ig, '_');
+        const filename: string = `${ref}/${name}${this.ext}`;
+
+        const width: number = this.getWidth();
+        const height: number = this.getHeight();
+
         debug(`Saving original (${width}x${height})`);
 
-        json.ext = this.ext;
-
-        const env: string = (process.env.NODE_ENV !== 'production' ? `${process.env.NODE_ENV}/` : '');
-        const filename: string = `${name}/${ref}${this.ext}`;
+        const filepath: string = `${env}${this.uploadConfig.dir}${filename}`;
 
         let data: any = await storage.bucket(this.uploadConfig.bucket).upload(this.file.tempFilePath, {
-            destination: env + filename,
+            destination: filepath,
             gzip: true,
             contentType: mime.lookup(this.file.tempFilePath)
         });
 
-        json.path = env + filename;
-        json.filename = name + this.ext;
+        const json: any = {};
+        json.path = filepath;
+        json.filename = filename;
         json.original = `https://${data[0].metadata.bucket}/${data[0].metadata.name}`;
+        json.ext = this.ext;
 
         if (this.uploadConfig.sizes) {
             for (const size of this.uploadConfig.sizes) {
                 debug(`Resizing to: ${size.tag} (${size.width ? size.width : 'auto'}x${size.height ? size.height : 'auto'})`);
 
-                const resizedImagePath: string = `/tmp/${size.tag}${this.ext}`;
+                const resizedName: string = `${ref}/${name}_${size.tag}${this.ext}`;
+                const resizedPath: string = `/tmp/${resizedName}`;
 
-                await this.image.resize(size.width, size.height).toFile(resizedImagePath);
+                await this.image.resize(size.width, size.height).toFile(resizedPath);
 
-                data = await storage.bucket(this.uploadConfig.bucket).upload(resizedImagePath, {
-                    destination: `${env}${name}/${ref}_${size.tag}${this.ext}`,
+                data = await storage.bucket(this.uploadConfig.bucket).upload(resizedPath, {
+                    destination: `${env}/${this.uploadConfig.dir}${resizedName}`,
                     gzip: true
                 });
 

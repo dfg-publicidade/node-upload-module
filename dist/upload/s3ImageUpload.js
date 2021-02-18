@@ -19,32 +19,34 @@ class S3ImageUpload extends imageUpload_1.default {
         });
     }
     async upload(ref) {
-        const json = {};
+        debug('Uploading file and doing resizes...');
+        const env = (process.env.NODE_ENV !== 'production' ? `${process.env.NODE_ENV}/` : '');
         const name = this.uploadConfig.prefix.replace(/\//ig, '_');
+        const filename = `${ref}/${name}${this.ext}`;
         const width = this.getWidth();
         const height = this.getHeight();
-        debug('Uploading file and doing resizes...');
         debug(`Saving original (${width}x${height})`);
-        json.ext = this.ext;
-        const env = (process.env.NODE_ENV !== 'production' ? `${process.env.NODE_ENV}/` : '');
-        const filename = `${env}${this.uploadConfig.dir}${ref}/${name}${this.ext}`;
+        const filepath = `${env}${this.uploadConfig.dir}${filename}`;
         let data = await s3Uploader_1.default.upload(this.s3, {
             Bucket: this.config.aws.bucket,
-            Key: filename,
+            Key: filepath,
             Body: this.file.data
         });
-        json.path = filename;
-        json.filename = name + this.ext;
+        const json = {};
+        json.path = filepath;
+        json.filename = filename;
         json.original = data.Location;
+        json.ext = this.ext;
         if (this.uploadConfig.sizes) {
             for (const size of this.uploadConfig.sizes) {
                 debug(`Resizing to: ${size.tag} (${size.width ? size.width : 'auto'}x${size.height ? size.height : 'auto'})`);
-                const resizedImagePath = `/tmp/${size.tag}${this.ext}`;
-                await this.image.resize(size.width, size.height).toFile(resizedImagePath);
+                const resizedName = `${ref}/${name}_${size.tag}${this.ext}`;
+                const resizedPath = `/tmp/${resizedName}`;
+                await this.image.resize(size.width, size.height).toFile(resizedPath);
                 data = await s3Uploader_1.default.upload(this.s3, {
                     Bucket: this.config.aws.bucket,
-                    Key: `${env}${this.uploadConfig.dir}${ref}/${name}${size.tag}${this.ext}`,
-                    Body: fs_extra_1.default.readFileSync(resizedImagePath)
+                    Key: `${env}/${this.uploadConfig.dir}${resizedName}`,
+                    Body: fs_extra_1.default.readFileSync(resizedPath)
                 });
                 json[size.tag] = data.Location;
             }

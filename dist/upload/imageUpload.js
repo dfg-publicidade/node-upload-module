@@ -57,25 +57,25 @@ class ImageUpload extends fileUpload_1.default {
         const json = {};
         const uploadPath = this.config.path + this.uploadConfig.dir;
         const uploadUrl = this.config.url + this.uploadConfig.dir;
-        const name = this.uploadConfig.name;
-        const width = this.getWidth();
-        const height = this.getHeight();
         debug('Uploading file and doing resizes...');
         if (!await fs_extra_1.default.pathExists(uploadPath + ref)) {
             debug('Creating upload directory...');
             await fs_extra_1.default.mkdirs(uploadPath + ref);
         }
-        const filename = `${ref}/${name}${this.ext}`;
+        const width = this.getWidth();
+        const height = this.getHeight();
         debug(`Saving original (${width}x${height})`);
+        const name = this.uploadConfig.prefix.replace(/\//ig, '_');
+        const filename = `${ref}/${name}${this.ext}`;
         await this.image.toFile(uploadPath + filename);
         json.original = uploadUrl + filename;
         json.filename = `${this.uploadConfig.dir}/${filename}`;
         if (this.uploadConfig.sizes) {
             for (const size of this.uploadConfig.sizes) {
                 debug(`Resizing to: ${size.tag} (${size.width}x${size.height})`);
-                const resizedImagePath = `${ref}/${name}_${size.tag}${this.ext}`;
-                await this.image.resize(size.width, size.height).toFile(uploadPath + resizedImagePath);
-                json[size.tag] = uploadUrl + resizedImagePath;
+                const resizedName = `${ref}/${name}_${size.tag}${this.ext}`;
+                await this.image.resize(size.width, size.height).toFile(uploadPath + resizedName);
+                json[size.tag] = uploadUrl + resizedName;
             }
         }
         json.ext = this.ext;

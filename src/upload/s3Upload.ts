@@ -25,27 +25,26 @@ class S3Upload extends FileUpload implements Upload {
     }
 
     public async upload(ref: string): Promise<any> {
-        const json: any = {};
-
-        const name: string = this.uploadConfig.prefix.replace(/\//ig, '_');
-
         debug('Uploading file...');
 
-        json.ext = this.ext;
-
         const env: string = (process.env.NODE_ENV !== 'production' ? `${process.env.NODE_ENV}/` : '');
-        const filename: string = `${env}${this.uploadConfig.dir}${ref}/${name}${this.ext}`;
+
+        let name: string = this.uploadConfig.prefix.replace(/\//ig, '_');
+        name = `${ref}/${name}${this.ext}`;
+
+        const filepath: string = `${env}${this.uploadConfig.dir}${name}`;
 
         const data: any = await S3Uploader.upload(this.s3, {
             Bucket: this.uploadConfig.bucket,
-            Key: filename,
+            Key: filepath,
             Body: this.file.data
         });
 
         return Promise.resolve({
-            path: filename,
-            filename: name + this.ext,
-            original: data.Location
+            path: filepath,
+            filename: name,
+            original: data.Location,
+            ext: this.ext
         });
     }
 }

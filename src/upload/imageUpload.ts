@@ -78,10 +78,6 @@ class ImageUpload extends FileUpload implements Upload {
         const uploadPath: string = this.config.path + this.uploadConfig.dir;
         const uploadUrl: string = this.config.url + this.uploadConfig.dir;
 
-        const name: string = this.uploadConfig.name;
-        const width: number = this.getWidth();
-        const height: number = this.getHeight();
-
         debug('Uploading file and doing resizes...');
 
         if (!await fs.pathExists(uploadPath + ref)) {
@@ -89,9 +85,14 @@ class ImageUpload extends FileUpload implements Upload {
             await fs.mkdirs(uploadPath + ref);
         }
 
-        const filename: string = `${ref}/${name}${this.ext}`;
+        const width: number = this.getWidth();
+        const height: number = this.getHeight();
 
         debug(`Saving original (${width}x${height})`);
+
+        const name: string = this.uploadConfig.prefix.replace(/\//ig, '_');
+        const filename: string = `${ref}/${name}${this.ext}`;
+
         await this.image.toFile(uploadPath + filename);
         json.original = uploadUrl + filename;
         json.filename = `${this.uploadConfig.dir}/${filename}`;
@@ -100,10 +101,10 @@ class ImageUpload extends FileUpload implements Upload {
             for (const size of this.uploadConfig.sizes) {
                 debug(`Resizing to: ${size.tag} (${size.width}x${size.height})`);
 
-                const resizedImagePath: string = `${ref}/${name}_${size.tag}${this.ext}`;
+                const resizedName: string = `${ref}/${name}_${size.tag}${this.ext}`;
 
-                await this.image.resize(size.width, size.height).toFile(uploadPath + resizedImagePath);
-                json[size.tag] = uploadUrl + resizedImagePath;
+                await this.image.resize(size.width, size.height).toFile(uploadPath + resizedName);
+                json[size.tag] = uploadUrl + resizedName;
             }
         }
 

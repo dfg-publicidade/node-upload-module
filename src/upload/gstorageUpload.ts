@@ -19,31 +19,28 @@ class GStorageUpload extends FileUpload implements Upload {
     }
 
     public async upload(ref: string): Promise<any> {
-        const json: any = {};
-
-        const name: string = this.uploadConfig.prefix;
-
         debug('Uploading file...');
 
         const storage: Storage = new Storage();
 
-        debug('Saving file');
-
-        json.ext = this.ext;
-
         const env: string = (process.env.NODE_ENV !== 'production' ? `${process.env.NODE_ENV}/` : '');
-        const filename: string = `${env}${this.uploadConfig.dir}${ref}/${name}${this.ext}`;
+
+        let name: string = this.uploadConfig.prefix.replace(/\//ig, '_');
+        name = `${ref}/${name}${this.ext}`;
+
+        const filepath: string = `${env}${this.uploadConfig.dir}${name}`;
 
         const data: any = await storage.bucket(this.uploadConfig.bucket).upload(this.file.tempFilePath, {
-            destination: filename,
+            destination: filepath,
             gzip: true,
             contentType: mime.lookup(this.file.tempFilePath)
         });
 
         return Promise.resolve({
-            path: filename,
-            filename: name + this.ext,
-            original: `https://${data[0].metadata.bucket}/${data[0].metadata.name}`
+            path: filepath,
+            filename: name,
+            original: `https://${data[0].metadata.bucket}/${data[0].metadata.name}`,
+            ext: this.ext
         });
     }
 }
