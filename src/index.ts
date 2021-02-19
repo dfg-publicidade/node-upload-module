@@ -10,6 +10,7 @@ import Download from './interfaces/download';
 import ImageUploadConfig from './interfaces/imageUploadConfig';
 import Upload from './interfaces/upload';
 import UploadConfig from './interfaces/uploadConfig';
+import S3Uploader from './s3/s3Uploader';
 import FileUpload from './upload/fileUpload';
 import GStorageImageUpload from './upload/gstorageImageUpload';
 import GStorageUpload from './upload/gstorageUpload';
@@ -32,6 +33,8 @@ export {
     ImageUploadConfig,
     Upload,
     UploadConfig,
+
+    S3Uploader,
 
     FileUpload,
     GStorageImageUpload,

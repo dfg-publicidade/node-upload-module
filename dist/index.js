@@ -3,13 +3,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.S3Upload = exports.S3ImageUpload = exports.ImageUpload = exports.GStorageUpload = exports.GStorageImageUpload = exports.FileUpload = exports.S3Download = exports.GStorageDownload = exports.FileDownload = void 0;
+exports.S3Upload = exports.S3ImageUpload = exports.ImageUpload = exports.GStorageUpload = exports.GStorageImageUpload = exports.FileUpload = exports.S3Uploader = exports.S3Download = exports.GStorageDownload = exports.FileDownload = void 0;
 const fileDownload_1 = __importDefault(require("./download/fileDownload"));
 exports.FileDownload = fileDownload_1.default;
 const gstorageDownload_1 = __importDefault(require("./download/gstorageDownload"));
 exports.GStorageDownload = gstorageDownload_1.default;
 const s3Download_1 = __importDefault(require("./download/s3Download"));
 exports.S3Download = s3Download_1.default;
+const s3Uploader_1 = __importDefault(require("./s3/s3Uploader"));
+exports.S3Uploader = s3Uploader_1.default;
 const fileUpload_1 = __importDefault(require("./upload/fileUpload"));
 exports.FileUpload = fileUpload_1.default;
 const gstorageImageUpload_1 = __importDefault(require("./upload/gstorageImageUpload"));
