@@ -1,6 +1,7 @@
 import AWS, { S3 } from 'aws-sdk';
 import appDebugger from 'debug';
 import fs from 'fs-extra';
+import sharp, { Sharp } from 'sharp';
 import CloudImageUploadConfig from '../interfaces/cloudImageUploadConfig';
 import Upload from '../interfaces/upload';
 import S3Uploader from '../s3/s3Uploader';
@@ -62,6 +63,62 @@ class S3ImageUpload extends ImageUpload implements Upload {
                 }
 
                 await this.image.resize(size.width, size.height).toFile(resizedPath);
+
+                data = await S3Uploader.upload(this.s3, {
+                    Bucket: this.uploadConfig.bucket,
+                    Key: `${env}/${this.uploadConfig.dir}${resizedName}`,
+                    Body: fs.readFileSync(resizedPath)
+                });
+
+                json[size.tag] = data.Location;
+            }
+        }
+
+        return Promise.resolve(json);
+    }
+
+    public async save(ref: string, ext: string, buffer: Buffer): Promise<any> {
+        debug('Uploading file and doing resizes...');
+
+        const env: string = (process.env.NODE_ENV !== 'production' ? `${process.env.NODE_ENV}/` : '');
+
+        const name: string = this.uploadConfig.prefix.replace(/\//ig, '_');
+        const filename: string = `${ref}/${name}${ext}`;
+
+        const width: number = this.getWidth();
+        const height: number = this.getHeight();
+
+        debug(`Saving original (${width}x${height})`);
+
+        const filepath: string = `${env}${this.uploadConfig.dir}${filename}`;
+
+        let data: any = await S3Uploader.upload(this.s3, {
+            Bucket: this.uploadConfig.bucket,
+            Key: filepath,
+            Body: buffer
+        });
+
+        const json: any = {};
+        json.path = filepath;
+        json.filename = filename;
+        json.original = data.Location;
+        json.ext = ext;
+
+        if (this.uploadConfig.sizes) {
+            const image: Sharp = sharp(buffer);
+
+            for (const size of this.uploadConfig.sizes) {
+                debug(`Resizing to: ${size.tag} (${size.width ? size.width : 'auto'}x${size.height ? size.height : 'auto'})`);
+
+                const resizedName: string = `${ref}/${name}_${size.tag}${ext}`;
+                const resizedPath: string = `/tmp/${resizedName}`;
+
+                if (!await fs.pathExists(`/tmp/${ref}`)) {
+                    debug('Creating upload directory...');
+                    await fs.mkdirs(`/tmp/${ref}`);
+                }
+
+                await image.resize(size.width, size.height).toFile(resizedPath);
 
                 data = await S3Uploader.upload(this.s3, {
                     Bucket: this.uploadConfig.bucket,
