@@ -63,6 +63,10 @@ class S3ImageUpload extends imageUpload_1.default {
         const env = (process.env.NODE_ENV !== 'production' ? `${process.env.NODE_ENV}/` : '');
         const name = this.uploadConfig.prefix.replace(/\//ig, '_');
         const filename = `${ref}/${name}${ext}`;
+        const image = sharp_1.default(buffer);
+        const meta = await this.image.metadata();
+        this.image = image;
+        this.metadata = meta;
         const width = this.getWidth();
         const height = this.getHeight();
         debug(`Saving original (${width}x${height})`);
@@ -78,7 +82,6 @@ class S3ImageUpload extends imageUpload_1.default {
         json.original = data.Location;
         json.ext = ext;
         if (this.uploadConfig.sizes) {
-            const image = sharp_1.default(buffer);
             for (const size of this.uploadConfig.sizes) {
                 debug(`Resizing to: ${size.tag} (${size.width ? size.width : 'auto'}x${size.height ? size.height : 'auto'})`);
                 const resizedName = `${ref}/${name}_${size.tag}${ext}`;

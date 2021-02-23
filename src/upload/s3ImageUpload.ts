@@ -85,6 +85,12 @@ class S3ImageUpload extends ImageUpload implements Upload {
         const name: string = this.uploadConfig.prefix.replace(/\//ig, '_');
         const filename: string = `${ref}/${name}${ext}`;
 
+        const image: Sharp = sharp(buffer);
+        const meta: any = await this.image.metadata();
+
+        this.image = image;
+        this.metadata = meta;
+
         const width: number = this.getWidth();
         const height: number = this.getHeight();
 
@@ -105,8 +111,6 @@ class S3ImageUpload extends ImageUpload implements Upload {
         json.ext = ext;
 
         if (this.uploadConfig.sizes) {
-            const image: Sharp = sharp(buffer);
-
             for (const size of this.uploadConfig.sizes) {
                 debug(`Resizing to: ${size.tag} (${size.width ? size.width : 'auto'}x${size.height ? size.height : 'auto'})`);
 
