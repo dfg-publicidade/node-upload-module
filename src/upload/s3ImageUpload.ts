@@ -86,7 +86,7 @@ class S3ImageUpload extends ImageUpload implements Upload {
         const filename: string = `${ref}/${name}${ext}`;
 
         const image: Sharp = sharp(buffer);
-        const meta: any = await this.image.metadata();
+        const meta: any = await image.metadata();
 
         this.image = image;
         this.metadata = meta;

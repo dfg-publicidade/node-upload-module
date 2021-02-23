@@ -64,7 +64,7 @@ class S3ImageUpload extends imageUpload_1.default {
         const name = this.uploadConfig.prefix.replace(/\//ig, '_');
         const filename = `${ref}/${name}${ext}`;
         const image = sharp_1.default(buffer);
-        const meta = await this.image.metadata();
+        const meta = await image.metadata();
         this.image = image;
         this.metadata = meta;
         const width = this.getWidth();
