@@ -53,22 +53,13 @@ class FileUpload {
         return undefined;
     }
     async upload(ref) {
-        const json = {};
         const uploadPath = this.config.path + this.uploadConfig.dir;
-        const uploadUrl = this.config.url + this.uploadConfig.dir;
         debug('Uploading file...');
-        if (!await fs_extra_1.default.pathExists(uploadPath + ref)) {
-            debug('Creating upload directory...');
-            await fs_extra_1.default.mkdirs(uploadPath + ref);
-        }
+        await this.mkdirs(uploadPath + ref);
         debug('Saving file');
-        let name = this.uploadConfig.prefix.replace(/\//ig, '_');
-        name = `${ref}/${name}${this.ext}`;
-        await this.file.mv(uploadPath + name);
-        json.original = uploadUrl + name;
-        json.filename = `${this.uploadConfig.dir}/${name}`;
-        json.ext = this.ext;
-        return Promise.resolve(json);
+        const name = this.uploadConfig.prefix.replace(/\//ig, '_');
+        const path = `${ref}/${name}${this.ext}`;
+        return this.mv(uploadPath + path);
     }
     getExt() {
         if (this.uploadConfig && this.uploadConfig.rules && this.uploadConfig.rules.ext) {
@@ -81,6 +72,20 @@ class FileUpload {
             return this.uploadConfig.rules.sizeInKBytes;
         }
         return this.file.data.length;
+    }
+    async mkdirs(path) {
+        if (!await fs_extra_1.default.pathExists(path)) {
+            debug('Creating upload directory...');
+            await fs_extra_1.default.mkdirs(path);
+        }
+    }
+    async mv(path) {
+        await this.file.mv(path);
+        return Promise.resolve({
+            original: this.config.url + this.uploadConfig.dir + path,
+            filename: this.uploadConfig.dir + path,
+            ext: this.ext
+        });
     }
 }
 exports.default = FileUpload;

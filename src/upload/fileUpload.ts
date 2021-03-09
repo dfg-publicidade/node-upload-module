@@ -74,30 +74,18 @@ class FileUpload implements Upload {
     }
 
     public async upload(ref: string): Promise<any> {
-        const json: any = {};
-
         const uploadPath: string = this.config.path + this.uploadConfig.dir;
-        const uploadUrl: string = this.config.url + this.uploadConfig.dir;
 
         debug('Uploading file...');
 
-        if (!await fs.pathExists(uploadPath + ref)) {
-            debug('Creating upload directory...');
-            await fs.mkdirs(uploadPath + ref);
-        }
+        await this.mkdirs(uploadPath + ref);
 
         debug('Saving file');
 
-        let name: string = this.uploadConfig.prefix.replace(/\//ig, '_');
-        name = `${ref}/${name}${this.ext}`;
+        const name: string = this.uploadConfig.prefix.replace(/\//ig, '_');
+        const path: string = `${ref}/${name}${this.ext}`;
 
-        await this.file.mv(uploadPath + name);
-        json.original = uploadUrl + name;
-        json.filename = `${this.uploadConfig.dir}/${name}`;
-
-        json.ext = this.ext;
-
-        return Promise.resolve(json);
+        return this.mv(uploadPath + path);
     }
 
     protected getExt(): string[] {
@@ -114,6 +102,23 @@ class FileUpload implements Upload {
         }
 
         return this.file.data.length;
+    }
+
+    protected async mkdirs(path: string): Promise<void> {
+        if (!await fs.pathExists(path)) {
+            debug('Creating upload directory...');
+            await fs.mkdirs(path);
+        }
+    }
+
+    protected async mv(path: string): Promise<any> {
+        await this.file.mv(path);
+
+        return Promise.resolve({
+            original: this.config.url + this.uploadConfig.dir + path,
+            filename: this.uploadConfig.dir + path,
+            ext: this.ext
+        });
     }
 }
 

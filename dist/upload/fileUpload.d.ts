@@ -17,5 +17,7 @@ declare class FileUpload implements Upload {
     upload(ref: string): Promise<any>;
     protected getExt(): string[];
     protected getSizeInKBytes(): number;
+    protected mkdirs(path: string): Promise<void>;
+    protected mv(path: string): Promise<any>;
 }
 export default FileUpload;
