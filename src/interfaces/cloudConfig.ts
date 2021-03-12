@@ -1,4 +1,3 @@
-
 /* Module */
 interface CloudConfig {
     bucket: string;
