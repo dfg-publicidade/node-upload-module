@@ -23,7 +23,7 @@ class GStorageUpload extends fileUpload_1.default {
         const data = await storage.bucket(this.uploadConfig.bucket).upload(this.file.tempFilePath, {
             destination: filepath,
             gzip: true,
-            contentType: mime_1.default.lookup(this.file.tempFilePath)
+            contentType: mime_1.default.getType(this.file.tempFilePath)
         });
         return Promise.resolve({
             path: filepath,
