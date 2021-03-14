@@ -1,6 +1,7 @@
 import { Storage } from '@google-cloud/storage';
 import appDebugger from 'debug';
 import { UploadedFile } from 'express-fileupload';
+import fs from 'fs-extra';
 import mime from 'mime';
 import CloudUploadConfig from '../interfaces/cloudUploadConfig';
 import Upload from '../interfaces/upload';
@@ -30,11 +31,30 @@ class GStorageUpload extends FileUpload implements Upload {
 
         const filepath: string = `${env}${this.uploadConfig.dir}${name}`;
 
-        const data: any = await storage.bucket(this.uploadConfig.bucket).upload(this.file.tempFilePath, {
+        let tmpPath: string;
+        if (this.file.tempFilePath) {
+            tmpPath = this.file.tempFilePath;
+        }
+        else {
+            tmpPath = `/tmp/${ref}`;
+
+            if (!await fs.pathExists(tmpPath)) {
+                debug('Creating upload directory...');
+                await fs.mkdirs(tmpPath);
+            }
+
+            await fs.writeFile(tmpPath, this.file.data);
+        }
+
+        const data: any = await storage.bucket(this.uploadConfig.bucket).upload(tmpPath, {
             destination: filepath,
             gzip: true,
-            contentType: mime.getType(this.file.tempFilePath)
+            contentType: mime.getType(this.ext)
         });
+
+        if (!this.file.tempFilePath) {
+            await fs.remove(tmpPath);
+        }
 
         return Promise.resolve({
             path: filepath,

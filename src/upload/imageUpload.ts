@@ -25,6 +25,10 @@ class ImageUpload extends FileUpload implements Upload {
         await super.init(req);
 
         if (this.file) {
+            if (this.config.fileUpload.useTempFiles) {
+                this.file.data = await fs.readFileSync(this.file.tempFilePath);
+            }
+
             this.image = sharp(this.file.data);
             this.metadata = await this.image.metadata();
         }

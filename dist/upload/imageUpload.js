@@ -16,6 +16,9 @@ class ImageUpload extends fileUpload_1.default {
     async init(req) {
         await super.init(req);
         if (this.file) {
+            if (this.config.fileUpload.useTempFiles) {
+                this.file.data = await fs_extra_1.default.readFileSync(this.file.tempFilePath);
+            }
             this.image = sharp_1.default(this.file.data);
             this.metadata = await this.image.metadata();
         }

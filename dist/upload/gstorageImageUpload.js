@@ -24,10 +24,22 @@ class GStorageImageUpload extends imageUpload_1.default {
         const height = this.getHeight();
         debug(`Saving original (${width}x${height})`);
         const filepath = `${env}${this.uploadConfig.dir}${filename}`;
-        let data = await storage.bucket(this.uploadConfig.bucket).upload(this.file.tempFilePath, {
+        let tmpPath;
+        if (this.file.tempFilePath) {
+            tmpPath = this.file.tempFilePath;
+        }
+        else {
+            tmpPath = `/tmp/${ref}`;
+            if (!await fs_extra_1.default.pathExists('/tmp')) {
+                debug('Creating upload directory...');
+                await fs_extra_1.default.mkdirs('/tmp');
+            }
+            await fs_extra_1.default.writeFile(tmpPath, this.file.data);
+        }
+        let data = await storage.bucket(this.uploadConfig.bucket).upload(tmpPath, {
             destination: filepath,
             gzip: true,
-            contentType: mime_1.default.getType(this.file.tempFilePath)
+            contentType: mime_1.default.getType(this.ext)
         });
         const json = {};
         json.path = filepath;
@@ -50,6 +62,9 @@ class GStorageImageUpload extends imageUpload_1.default {
                 });
                 json[size.tag] = `https://${data[0].metadata.bucket}/${data[0].metadata.name}`;
             }
+        }
+        if (!this.file.tempFilePath) {
+            await fs_extra_1.default.remove(tmpPath);
         }
         return Promise.resolve(json);
     }

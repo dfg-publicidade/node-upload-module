@@ -33,10 +33,25 @@ class GStorageImageUpload extends ImageUpload implements Upload {
 
         const filepath: string = `${env}${this.uploadConfig.dir}${filename}`;
 
-        let data: any = await storage.bucket(this.uploadConfig.bucket).upload(this.file.tempFilePath, {
+        let tmpPath: string;
+        if (this.file.tempFilePath) {
+            tmpPath = this.file.tempFilePath;
+        }
+        else {
+            tmpPath = `/tmp/${ref}`;
+
+            if (!await fs.pathExists('/tmp')) {
+                debug('Creating upload directory...');
+                await fs.mkdirs('/tmp');
+            }
+
+            await fs.writeFile(tmpPath, this.file.data);
+        }
+
+        let data: any = await storage.bucket(this.uploadConfig.bucket).upload(tmpPath, {
             destination: filepath,
             gzip: true,
-            contentType: mime.getType(this.file.tempFilePath)
+            contentType: mime.getType(this.ext)
         });
 
         const json: any = {};
@@ -66,6 +81,10 @@ class GStorageImageUpload extends ImageUpload implements Upload {
 
                 json[size.tag] = `https://${data[0].metadata.bucket}/${data[0].metadata.name}`;
             }
+        }
+
+        if (!this.file.tempFilePath) {
+            await fs.remove(tmpPath);
         }
 
         return Promise.resolve(json);

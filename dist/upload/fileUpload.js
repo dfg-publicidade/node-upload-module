@@ -20,6 +20,9 @@ class FileUpload {
             const file = req.files[this.uploadConfig.name] ? req.files[this.uploadConfig.name] : undefined;
             this.file = Array.isArray(file) ? file[0] : file;
             if (this.file) {
+                if (this.config.fileUpload.useTempFiles) {
+                    this.file.data = await fs_extra_1.default.readFileSync(this.file.tempFilePath);
+                }
                 this.ext = path_1.default.extname(this.file.name).toLowerCase();
             }
         }
