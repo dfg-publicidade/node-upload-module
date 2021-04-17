@@ -1,7 +1,7 @@
 import { Storage } from '@google-cloud/storage';
 import appDebugger from 'debug';
 import fs from 'fs-extra';
-import mime from 'mime';
+import mime from 'mime-type/with-db';
 import CloudImageUploadConfig from '../interfaces/cloudImageUploadConfig';
 import Upload from '../interfaces/upload';
 import ImageUpload from './imageUpload';
@@ -51,7 +51,7 @@ class GStorageImageUpload extends ImageUpload implements Upload {
         let data: any = await storage.bucket(this.uploadConfig.bucket).upload(tmpPath, {
             destination: filepath,
             gzip: true,
-            contentType: mime.getType(this.ext)
+            contentType: mime.lookup(this.ext) as string
         });
 
         const json: any = {};

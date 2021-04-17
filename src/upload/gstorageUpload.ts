@@ -2,7 +2,7 @@ import { Storage } from '@google-cloud/storage';
 import appDebugger from 'debug';
 import { UploadedFile } from 'express-fileupload';
 import fs from 'fs-extra';
-import mime from 'mime';
+import mime from 'mime-type/with-db';
 import CloudUploadConfig from '../interfaces/cloudUploadConfig';
 import Upload from '../interfaces/upload';
 import FileUpload from './fileUpload';
@@ -49,7 +49,7 @@ class GStorageUpload extends FileUpload implements Upload {
         const data: any = await storage.bucket(this.uploadConfig.bucket).upload(tmpPath, {
             destination: filepath,
             gzip: true,
-            contentType: mime.getType(this.ext)
+            contentType: mime.lookup(this.ext) as string
         });
 
         if (!this.file.tempFilePath) {

@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const storage_1 = require("@google-cloud/storage");
 const debug_1 = __importDefault(require("debug"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
-const mime_1 = __importDefault(require("mime"));
+const with_db_1 = __importDefault(require("mime-type/with-db"));
 const imageUpload_1 = __importDefault(require("./imageUpload"));
 /* Module */
 const debug = debug_1.default('module:upload-image-gstorage');
@@ -39,7 +39,7 @@ class GStorageImageUpload extends imageUpload_1.default {
         let data = await storage.bucket(this.uploadConfig.bucket).upload(tmpPath, {
             destination: filepath,
             gzip: true,
-            contentType: mime_1.default.getType(this.ext)
+            contentType: with_db_1.default.lookup(this.ext)
         });
         const json = {};
         json.path = filepath;
