@@ -12,6 +12,7 @@ const debug = debug_1.default('module:upload-file');
 const byteToKByteConv = 1024;
 class FileUpload {
     constructor(config, uploadConfig) {
+        debug('Creating file upload...');
         if (!config) {
             throw new Error('Application config. was not provided.');
         }
@@ -92,6 +93,7 @@ class FileUpload {
         return [this.ext];
     }
     async mv(root, path, file) {
+        debug(`Storing file: ${root + path + file}`);
         await uploadUtil_1.default.mkdirs(root + path);
         return this.file.mv(root + path + file);
     }

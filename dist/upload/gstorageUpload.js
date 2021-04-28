@@ -4,11 +4,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const storage_1 = require("@google-cloud/storage");
+const debug_1 = __importDefault(require("debug"));
 const with_db_1 = __importDefault(require("mime-type/with-db"));
 const fileUpload_1 = __importDefault(require("./fileUpload"));
 /* Module */
+const debug = debug_1.default('module:upload-gstorage-file');
 class GStorageUpload extends fileUpload_1.default {
     async save(ref, ext, buffer) {
+        debug('Saving file...');
         this.file = {
             data: buffer
         };
@@ -16,6 +19,7 @@ class GStorageUpload extends fileUpload_1.default {
         return this.upload(ref);
     }
     async mv(root, path, file) {
+        debug(`Storing file: ${path + file}`);
         const storage = new storage_1.Storage();
         const bucketFile = storage.bucket(this.uploadConfig.bucket).file(path + file);
         await bucketFile.delete({ ignoreNotFound: true });

@@ -32,6 +32,8 @@ class S3ImageUpload extends ImageUpload implements Upload {
     }
 
     public async save(ref: string, ext: string, buffer: Buffer): Promise<any> {
+        debug('Saving file...');
+
         this.file = {
             data: buffer
         } as UploadedFile;
@@ -45,7 +47,7 @@ class S3ImageUpload extends ImageUpload implements Upload {
     }
 
     protected async mv(root: string, path: string, file: string): Promise<any> {
-        debug('Uploading image to AWS S3');
+        debug(`Storing file: ${path + file}`);
 
         return S3Uploader.upload(this.s3, {
             Bucket: this.uploadConfig.bucket,

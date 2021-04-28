@@ -1,4 +1,5 @@
 import AWS, { S3 } from 'aws-sdk';
+import appDebugger from 'debug';
 import { UploadedFile } from 'express-fileupload';
 import CloudUploadConfig from '../interfaces/cloudUploadConfig';
 import Upload from '../interfaces/upload';
@@ -6,6 +7,8 @@ import S3Uploader from '../s3/s3Uploader';
 import FileUpload from './fileUpload';
 
 /* Module */
+const debug: appDebugger.IDebugger = appDebugger('module:upload-s3-file');
+
 class S3Upload extends FileUpload implements Upload {
     protected uploadConfig: CloudUploadConfig;
     private s3: S3;
@@ -27,6 +30,8 @@ class S3Upload extends FileUpload implements Upload {
     }
 
     public async save(ref: string, ext: string, buffer: Buffer): Promise<any> {
+        debug('Saving file...');
+
         this.file = {
             data: buffer
         } as UploadedFile;
@@ -37,6 +42,8 @@ class S3Upload extends FileUpload implements Upload {
     }
 
     protected async mv(root: string, path: string, file: string): Promise<any> {
+        debug(`Storing file: ${path + file}`);
+
         return S3Uploader.upload(this.s3, {
             Bucket: this.uploadConfig.bucket,
             Key: path + file,

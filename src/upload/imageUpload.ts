@@ -132,6 +132,8 @@ class ImageUpload extends FileUpload implements Upload {
     }
 
     protected async mv(root: string, path: string, file: string): Promise<any> {
+        debug(`Storing file: ${root + path + file}`);
+
         await UploadUtil.mkdirs(root + path);
 
         return this.image.toFile(root + path + file);

@@ -94,6 +94,7 @@ class ImageUpload extends fileUpload_1.default {
         return ['.jpg', '.jpeg', '.png'];
     }
     async mv(root, path, file) {
+        debug(`Storing file: ${root + path + file}`);
         await uploadUtil_1.default.mkdirs(root + path);
         return this.image.toFile(root + path + file);
     }

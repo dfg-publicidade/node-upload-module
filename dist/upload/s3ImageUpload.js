@@ -26,6 +26,7 @@ class S3ImageUpload extends imageUpload_1.default {
         });
     }
     async save(ref, ext, buffer) {
+        debug('Saving file...');
         this.file = {
             data: buffer
         };
@@ -35,7 +36,7 @@ class S3ImageUpload extends imageUpload_1.default {
         return this.upload(ref);
     }
     async mv(root, path, file) {
-        debug('Uploading image to AWS S3');
+        debug(`Storing file: ${path + file}`);
         return s3Uploader_1.default.upload(this.s3, {
             Bucket: this.uploadConfig.bucket,
             Key: path + file,

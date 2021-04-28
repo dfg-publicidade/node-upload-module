@@ -1,4 +1,5 @@
 import { File, Storage } from '@google-cloud/storage';
+import appDebugger from 'debug';
 import { UploadedFile } from 'express-fileupload';
 import mime from 'mime-type/with-db';
 import sharp from 'sharp';
@@ -7,10 +8,14 @@ import Upload from '../interfaces/upload';
 import ImageUpload from './imageUpload';
 
 /* Module */
+const debug: appDebugger.IDebugger = appDebugger('module:upload-gstorage-image');
+
 class GStorageImageUpload extends ImageUpload implements Upload {
     protected uploadConfig: CloudImageUploadConfig;
 
     public async save(ref: string, ext: string, buffer: Buffer): Promise<any> {
+        debug('Saving file...');
+
         this.file = {
             data: buffer
         } as UploadedFile;
@@ -24,6 +29,8 @@ class GStorageImageUpload extends ImageUpload implements Upload {
     }
 
     protected async mv(root: string, path: string, file: string): Promise<any> {
+        debug(`Storing file: ${path + file}`);
+
         const storage: Storage = new Storage();
 
         let bucketFile: File = storage.bucket(this.uploadConfig.bucket).file(path + file);

@@ -21,6 +21,8 @@ class FileUpload implements Upload {
     protected suffix: string;
 
     public constructor(config: any, uploadConfig: UploadConfig) {
+        debug('Creating file upload...');
+
         if (!config) {
             throw new Error('Application config. was not provided.');
         }
@@ -126,6 +128,8 @@ class FileUpload implements Upload {
     }
 
     protected async mv(root: string, path: string, file: string): Promise<any> {
+        debug(`Storing file: ${root + path + file}`);
+
         await UploadUtil.mkdirs(root + path);
 
         return this.file.mv(root + path + file);
