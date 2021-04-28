@@ -95,7 +95,7 @@ describe('s3Download.ts', (): void => {
         }).to.throw('Cloud config. was not provided.');
     });
 
-    it('3. download', async (): Promise<void> => {
+    it('6. download', async (): Promise<void> => {
         const s3Download: S3Download = new S3Download(config, {
             bucket: process.env.AWS_S3_TEST_BUCKET
         } as CloudUploadConfig);
@@ -111,7 +111,7 @@ describe('s3Download.ts', (): void => {
         expect(metadata.height).to.be.eq(400);
     });
 
-    it('4. download', async (): Promise<void> => {
+    it('7. download', async (): Promise<void> => {
         const s3Download: S3Download = new S3Download(config, {
             bucket: process.env.AWS_S3_TEST_BUCKET
         } as CloudUploadConfig);
