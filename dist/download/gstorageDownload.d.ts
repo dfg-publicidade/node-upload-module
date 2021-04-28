@@ -1,10 +1,10 @@
 /// <reference types="node" />
-import CloudUploadConfig from '../interfaces/cloudUploadConfig';
+import CloudConfig from '../interfaces/cloudConfig';
 import FileDownload from './fileDownload';
 declare class GStorageDownload extends FileDownload {
     protected config: any;
-    protected uploadConfig: CloudUploadConfig;
-    constructor(config: any, uploadConfig: CloudUploadConfig);
+    protected uploadConfig: CloudConfig;
+    constructor(config: any, uploadConfig: CloudConfig);
     download(path: string): Promise<Buffer>;
 }
 export default GStorageDownload;

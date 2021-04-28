@@ -1,6 +1,6 @@
 import { File, Storage } from '@google-cloud/storage';
 import appDebugger from 'debug';
-import CloudUploadConfig from '../interfaces/cloudUploadConfig';
+import CloudConfig from '../interfaces/cloudConfig';
 import FileDownload from './fileDownload';
 
 /* Module */
@@ -8,9 +8,9 @@ const debug: appDebugger.IDebugger = appDebugger('module:download-gstorage');
 
 class GStorageDownload extends FileDownload {
     protected config: any;
-    protected uploadConfig: CloudUploadConfig;
+    protected uploadConfig: CloudConfig;
 
-    public constructor(config: any, uploadConfig: CloudUploadConfig) {
+    public constructor(config: any, uploadConfig: CloudConfig) {
         super();
 
         if (!config) {

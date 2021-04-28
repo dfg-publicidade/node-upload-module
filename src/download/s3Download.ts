@@ -1,7 +1,6 @@
 import AWS, { S3 } from 'aws-sdk';
 import appDebugger from 'debug';
 import CloudConfig from '../interfaces/cloudConfig';
-import CloudUploadConfig from '../interfaces/cloudUploadConfig';
 import FileDownload from './fileDownload';
 
 /* Module */
@@ -11,7 +10,7 @@ class S3Download extends FileDownload {
     private cloudConfig: CloudConfig;
     private s3: S3;
 
-    public constructor(config: any, cloudConfig: CloudUploadConfig) {
+    public constructor(config: any, cloudConfig: CloudConfig) {
         super();
 
         this.cloudConfig = cloudConfig;
