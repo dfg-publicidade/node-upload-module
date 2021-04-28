@@ -1,28 +1,56 @@
-import { Storage } from '@google-cloud/storage';
+import { File, Storage } from '@google-cloud/storage';
 import appDebugger from 'debug';
-import CloudConfig from '../interfaces/cloudConfig';
-import Download from '../interfaces/download';
+import CloudUploadConfig from '../interfaces/cloudUploadConfig';
 import FileDownload from './fileDownload';
 
 /* Module */
 const debug: appDebugger.IDebugger = appDebugger('module:download-gstorage');
 
-class GStorageDownload extends FileDownload implements Download {
-    private cloudConfig: CloudConfig;
+class GStorageDownload extends FileDownload {
+    protected config: any;
+    protected uploadConfig: CloudUploadConfig;
 
-    public constructor(cloudConfig: CloudConfig) {
+    public constructor(config: any, uploadConfig: CloudUploadConfig) {
         super();
-        this.cloudConfig = cloudConfig;
+
+        if (!config) {
+            throw new Error('Application config. was not provided.');
+        }
+        if (!uploadConfig) {
+            throw new Error('Upload config. was not provided.');
+        }
+
+        this.config = config;
+        this.uploadConfig = uploadConfig;
     }
 
-    public async download(path: string): Promise<any> {
+    public async download(path: string): Promise<Buffer> {
         debug('Downloading file...');
 
         const storage: Storage = new Storage();
 
-        debug('Saving file');
+        const bucketFile: File = storage.bucket(this.uploadConfig.bucket).file(path);
 
-        return storage.bucket(this.cloudConfig.bucket).file(path).download();
+        const stream: any = bucketFile.createReadStream();
+
+        return new Promise<Buffer>((
+            resolve: (buffer: Buffer) => void,
+            reject: (err: any) => void
+        ): void => {
+            const buffer: any = [];
+
+            stream.on('data', (chunk: any): void => {
+                buffer.push(chunk);
+            });
+
+            stream.on('end', (): void => {
+                resolve(Buffer.concat(buffer));
+            });
+
+            stream.on('error', (err: any): void => {
+                reject(err);
+            });
+        });
     }
 }
 

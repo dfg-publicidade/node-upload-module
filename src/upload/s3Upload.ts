@@ -1,5 +1,4 @@
 import AWS, { S3 } from 'aws-sdk';
-import appDebugger from 'debug';
 import { UploadedFile } from 'express-fileupload';
 import CloudUploadConfig from '../interfaces/cloudUploadConfig';
 import Upload from '../interfaces/upload';
@@ -7,69 +6,49 @@ import S3Uploader from '../s3/s3Uploader';
 import FileUpload from './fileUpload';
 
 /* Module */
-const debug: appDebugger.IDebugger = appDebugger('module:upload-s3');
-
 class S3Upload extends FileUpload implements Upload {
     protected uploadConfig: CloudUploadConfig;
-    protected file: UploadedFile;
-    protected ext: string;
     private s3: S3;
 
     public constructor(config: any, uploadConfig: CloudUploadConfig) {
         super(config, uploadConfig);
 
+        if (!config.aws?.key || !config.aws.secret) {
+            throw new Error('Cloud authentication data was not provided.');
+        }
+        if (!uploadConfig.bucket) {
+            throw new Error('Cloud config. was not provided.');
+        }
+
         this.s3 = new AWS.S3({
-            accessKeyId: this.config.aws.key,
-            secretAccessKey: this.config.aws.secret
-        });
-    }
-
-    public async upload(ref: string): Promise<any> {
-        debug('Uploading file...');
-
-        const env: string = (process.env.NODE_ENV !== 'production' ? `${process.env.NODE_ENV}/` : '');
-
-        let name: string = this.uploadConfig.prefix.replace(/\//ig, '_');
-        name = `${ref}/${name}${this.ext}`;
-
-        const filepath: string = `${env}${this.uploadConfig.dir}${name}`;
-
-        const data: any = await S3Uploader.upload(this.s3, {
-            Bucket: this.uploadConfig.bucket,
-            Key: filepath,
-            Body: this.file.data
-        });
-
-        return Promise.resolve({
-            path: filepath,
-            filename: name,
-            original: data.Location,
-            ext: this.ext
+            accessKeyId: config.aws.key,
+            secretAccessKey: config.aws.secret
         });
     }
 
     public async save(ref: string, ext: string, buffer: Buffer): Promise<any> {
-        debug('Uploading file...');
+        this.file = {
+            data: buffer
+        } as UploadedFile;
 
-        const env: string = (process.env.NODE_ENV !== 'production' ? `${process.env.NODE_ENV}/` : '');
+        this.ext = ext;
 
-        let name: string = this.uploadConfig.prefix.replace(/\//ig, '_');
-        name = `${ref}/${name}${ext}`;
+        return this.upload(ref);
+    }
 
-        const filepath: string = `${env}${this.uploadConfig.dir}${name}`;
-
-        const data: any = await S3Uploader.upload(this.s3, {
+    protected async mv(root: string, path: string, file: string): Promise<any> {
+        return S3Uploader.upload(this.s3, {
             Bucket: this.uploadConfig.bucket,
-            Key: filepath,
-            Body: buffer
+            Key: path + file,
+            Body: this.file.data
         });
+    }
 
-        return Promise.resolve({
-            path: filepath,
-            filename: name,
-            original: data.Location,
-            ext
-        });
+    protected getUploadData(mvData: any, relativePath: string, name: string): any {
+        const json: any = super.getUploadData(mvData, relativePath, name);
+        json.original = mvData.Location;
+
+        return json;
     }
 }
 

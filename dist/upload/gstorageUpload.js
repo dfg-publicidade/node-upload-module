@@ -4,49 +4,41 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const storage_1 = require("@google-cloud/storage");
-const debug_1 = __importDefault(require("debug"));
-const fs_extra_1 = __importDefault(require("fs-extra"));
 const with_db_1 = __importDefault(require("mime-type/with-db"));
 const fileUpload_1 = __importDefault(require("./fileUpload"));
 /* Module */
-const debug = debug_1.default('module:upload-gstorage');
 class GStorageUpload extends fileUpload_1.default {
-    constructor(config, uploadConfig) {
-        super(config, uploadConfig);
+    async save(ref, ext, buffer) {
+        this.file = {
+            data: buffer
+        };
+        this.ext = ext;
+        return this.upload(ref);
     }
-    async upload(ref) {
-        debug('Uploading file...');
+    async mv(root, path, file) {
         const storage = new storage_1.Storage();
-        const env = (process.env.NODE_ENV !== 'production' ? `${process.env.NODE_ENV}/` : '');
-        let name = this.uploadConfig.prefix.replace(/\//ig, '_');
-        name = `${ref}/${name}${this.ext}`;
-        const filepath = `${env}${this.uploadConfig.dir}${name}`;
-        let tmpPath;
-        if (this.file.tempFilePath) {
-            tmpPath = this.file.tempFilePath;
-        }
-        else {
-            tmpPath = `/tmp/${ref}`;
-            if (!await fs_extra_1.default.pathExists(tmpPath)) {
-                debug('Creating upload directory...');
-                await fs_extra_1.default.mkdirs(tmpPath);
-            }
-            await fs_extra_1.default.writeFile(tmpPath, this.file.data);
-        }
-        const data = await storage.bucket(this.uploadConfig.bucket).upload(tmpPath, {
-            destination: filepath,
-            gzip: true,
-            contentType: with_db_1.default.lookup(this.ext)
+        const bucketFile = storage.bucket(this.uploadConfig.bucket).file(path + file);
+        await bucketFile.delete({ ignoreNotFound: true });
+        const stream = bucketFile.createWriteStream({
+            metadata: {
+                contentType: with_db_1.default.lookup(file)
+            },
+            resumable: false,
+            gzip: true
         });
-        if (!this.file.tempFilePath) {
-            await fs_extra_1.default.remove(tmpPath);
-        }
-        return Promise.resolve({
-            path: filepath,
-            filename: name,
-            original: `https://${data[0].metadata.bucket}/${data[0].metadata.name}`,
-            ext: this.ext
+        await stream.write(this.file.data);
+        await stream.end();
+        return new Promise((resolve) => {
+            stream.on('finish', () => {
+                resolve(bucketFile.getMetadata());
+            });
         });
+    }
+    getUploadData(mvData, relativePath, name) {
+        const data = mvData[0];
+        const json = super.getUploadData(mvData, relativePath, name);
+        json.original = `https://${data.bucket}/${data.name}`;
+        return json;
     }
 }
 exports.default = GStorageUpload;

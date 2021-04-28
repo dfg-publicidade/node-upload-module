@@ -9,15 +9,34 @@ const fileDownload_1 = __importDefault(require("./fileDownload"));
 /* Module */
 const debug = debug_1.default('module:download-gstorage');
 class GStorageDownload extends fileDownload_1.default {
-    constructor(cloudConfig) {
+    constructor(config, uploadConfig) {
         super();
-        this.cloudConfig = cloudConfig;
+        if (!config) {
+            throw new Error('Application config. was not provided.');
+        }
+        if (!uploadConfig) {
+            throw new Error('Upload config. was not provided.');
+        }
+        this.config = config;
+        this.uploadConfig = uploadConfig;
     }
     async download(path) {
         debug('Downloading file...');
         const storage = new storage_1.Storage();
-        debug('Saving file');
-        return storage.bucket(this.cloudConfig.bucket).file(path).download();
+        const bucketFile = storage.bucket(this.uploadConfig.bucket).file(path);
+        const stream = bucketFile.createReadStream();
+        return new Promise((resolve, reject) => {
+            const buffer = [];
+            stream.on('data', (chunk) => {
+                buffer.push(chunk);
+            });
+            stream.on('end', () => {
+                resolve(Buffer.concat(buffer));
+            });
+            stream.on('error', (err) => {
+                reject(err);
+            });
+        });
     }
 }
 exports.default = GStorageDownload;

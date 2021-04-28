@@ -8,14 +8,16 @@ declare class ImageUpload extends FileUpload implements Upload {
     image: Sharp;
     metadata: any;
     protected uploadConfig: ImageUploadConfig;
+    private defaultImage;
     constructor(config: any, uploadConfig: ImageUploadConfig);
     init(req: Request): Promise<void>;
-    hasImage(): boolean;
     getImage(): Sharp;
+    getMetadata(): any;
     imgValidate(): ImageUploadError;
     upload(ref: string): Promise<any>;
-    protected getExt(): string[];
-    protected getWidth(): number;
-    protected getHeight(): number;
+    protected getDefaultWidth(): number;
+    protected getDefaultHeight(): number;
+    protected getAcceptedExt(): string[];
+    protected mv(root: string, path: string, file: string): Promise<any>;
 }
 export default ImageUpload;

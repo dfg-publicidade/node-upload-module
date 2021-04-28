@@ -1,5 +1,4 @@
-import Download from '../interfaces/download';
-declare class FileDownload implements Download {
+declare class FileDownload {
     download(path: string): Promise<any>;
 }
 export default FileDownload;

@@ -4,9 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const debug_1 = __importDefault(require("debug"));
-const fs_extra_1 = __importDefault(require("fs-extra"));
 const sharp_1 = __importDefault(require("sharp"));
 const fileUpload_1 = __importDefault(require("./fileUpload"));
+const uploadUtil_1 = __importDefault(require("./uploadUtil"));
 /* Module */
 const debug = debug_1.default('module:upload-image');
 class ImageUpload extends fileUpload_1.default {
@@ -15,37 +15,35 @@ class ImageUpload extends fileUpload_1.default {
     }
     async init(req) {
         await super.init(req);
-        if (this.file) {
-            if (this.config.fileUpload.useTempFiles) {
-                this.file.data = await fs_extra_1.default.readFileSync(this.file.tempFilePath);
+        if (this.hasFile()) {
+            try {
+                this.image = sharp_1.default(this.getFile().data);
+                this.metadata = await this.image.metadata();
             }
-            this.image = sharp_1.default(this.file.data);
-            this.metadata = await this.image.metadata();
+            catch (err) {
+                throw new Error(`Cannot upload image. ${err}`);
+            }
         }
         return Promise.resolve();
-    }
-    hasImage() {
-        return !!this.file && !!this.image;
     }
     getImage() {
         return this.image;
     }
+    getMetadata() {
+        return this.metadata;
+    }
     imgValidate() {
-        const width = this.getWidth();
-        const height = this.getHeight();
         const uploadError = this.validate();
         if (uploadError) {
             return uploadError;
         }
-        if (!this.image || !this.metadata) {
-            debug('File file not received');
-            return 'EMPTY_FILE';
-        }
-        else if (width && this.metadata.width !== width) {
+        const defaultWidth = this.getDefaultWidth();
+        const defaultHeight = this.getDefaultHeight();
+        if (defaultWidth && this.metadata.width !== defaultWidth) {
             debug('The file sizes are not correct');
             return 'OUT_OF_DIMENSION';
         }
-        else if (height && this.metadata.height !== height) {
+        else if (defaultHeight && this.metadata.height !== defaultHeight) {
             debug('The file sizes are not correct');
             return 'OUT_OF_DIMENSION';
         }
@@ -57,50 +55,47 @@ class ImageUpload extends fileUpload_1.default {
         return undefined;
     }
     async upload(ref) {
-        const json = {};
-        const uploadPath = this.config.path + this.uploadConfig.dir;
-        const uploadUrl = this.config.url + this.uploadConfig.dir;
         debug('Uploading file and doing resizes...');
-        if (!await fs_extra_1.default.pathExists(uploadPath + ref)) {
-            debug('Creating upload directory...');
-            await fs_extra_1.default.mkdirs(uploadPath + ref);
-        }
-        const width = this.getWidth();
-        const height = this.getHeight();
+        const width = this.metadata.width;
+        const height = this.metadata.height;
         debug(`Saving original (${width}x${height})`);
-        const name = this.uploadConfig.prefix.replace(/\//ig, '_');
-        const filename = `${ref}/${name}${this.ext}`;
-        await this.image.toFile(uploadPath + filename);
-        json.original = uploadUrl + filename;
-        json.filename = `${this.uploadConfig.dir}/${filename}`;
+        const json = await super.upload(ref);
         if (this.uploadConfig.sizes) {
             for (const size of this.uploadConfig.sizes) {
-                debug(`Resizing to: ${size.tag} (${size.width}x${size.height})`);
-                const resizedName = `${ref}/${name}_${size.tag}${this.ext}`;
-                await this.image.resize(size.width, size.height).toFile(uploadPath + resizedName);
-                json[size.tag] = uploadUrl + resizedName;
+                const sizeWidth = size.width ? size.width : 'auto';
+                const sizeHeight = size.height ? size.height : 'auto';
+                debug(`Resizing to: ${size.tag} (${sizeWidth}x${sizeHeight})`);
+                this.defaultImage = this.image;
+                this.suffix = size.tag;
+                this.image = this.image.resize(size.width, size.height);
+                json[size.tag] = await super.upload(ref);
+                this.image = this.defaultImage;
+                this.suffix = undefined;
             }
         }
-        json.ext = this.ext;
         return Promise.resolve(json);
     }
-    getExt() {
-        if (this.uploadConfig && this.uploadConfig.rules && this.uploadConfig.rules.ext) {
-            return this.uploadConfig.rules.ext;
-        }
-        return ['.jpg', '.jpeg', '.png'];
-    }
-    getWidth() {
+    getDefaultWidth() {
         if (this.uploadConfig && this.uploadConfig.rules && this.uploadConfig.rules.width) {
             return this.uploadConfig.rules.width;
         }
         return this.metadata.width;
     }
-    getHeight() {
+    getDefaultHeight() {
         if (this.uploadConfig && this.uploadConfig.rules && this.uploadConfig.rules.height) {
             return this.uploadConfig.rules.height;
         }
         return this.metadata.height;
+    }
+    getAcceptedExt() {
+        if (this.uploadConfig && this.uploadConfig.rules && this.uploadConfig.rules.ext) {
+            return this.uploadConfig.rules.ext;
+        }
+        return ['.jpg', '.jpeg', '.png'];
+    }
+    async mv(root, path, file) {
+        await uploadUtil_1.default.mkdirs(root + path);
+        return this.image.toFile(root + path + file);
     }
 }
 exports.default = ImageUpload;

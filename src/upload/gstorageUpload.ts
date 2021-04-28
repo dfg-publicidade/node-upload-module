@@ -1,67 +1,58 @@
-import { Storage } from '@google-cloud/storage';
-import appDebugger from 'debug';
+import { File, Storage } from '@google-cloud/storage';
 import { UploadedFile } from 'express-fileupload';
-import fs from 'fs-extra';
 import mime from 'mime-type/with-db';
 import CloudUploadConfig from '../interfaces/cloudUploadConfig';
 import Upload from '../interfaces/upload';
 import FileUpload from './fileUpload';
 
 /* Module */
-const debug: appDebugger.IDebugger = appDebugger('module:upload-gstorage');
-
 class GStorageUpload extends FileUpload implements Upload {
     protected uploadConfig: CloudUploadConfig;
-    protected file: UploadedFile;
-    protected ext: string;
 
-    public constructor(config: any, uploadConfig: CloudUploadConfig) {
-        super(config, uploadConfig);
+    public async save(ref: string, ext: string, buffer: Buffer): Promise<any> {
+        this.file = {
+            data: buffer
+        } as UploadedFile;
+
+        this.ext = ext;
+
+        return this.upload(ref);
     }
 
-    public async upload(ref: string): Promise<any> {
-        debug('Uploading file...');
-
+    protected async mv(root: string, path: string, file: string): Promise<any> {
         const storage: Storage = new Storage();
 
-        const env: string = (process.env.NODE_ENV !== 'production' ? `${process.env.NODE_ENV}/` : '');
+        const bucketFile: File = storage.bucket(this.uploadConfig.bucket).file(path + file);
 
-        let name: string = this.uploadConfig.prefix.replace(/\//ig, '_');
-        name = `${ref}/${name}${this.ext}`;
+        await bucketFile.delete({ ignoreNotFound: true });
 
-        const filepath: string = `${env}${this.uploadConfig.dir}${name}`;
-
-        let tmpPath: string;
-        if (this.file.tempFilePath) {
-            tmpPath = this.file.tempFilePath;
-        }
-        else {
-            tmpPath = `/tmp/${ref}`;
-
-            if (!await fs.pathExists(tmpPath)) {
-                debug('Creating upload directory...');
-                await fs.mkdirs(tmpPath);
-            }
-
-            await fs.writeFile(tmpPath, this.file.data);
-        }
-
-        const data: any = await storage.bucket(this.uploadConfig.bucket).upload(tmpPath, {
-            destination: filepath,
-            gzip: true,
-            contentType: mime.lookup(this.ext) as string
+        const stream: any = bucketFile.createWriteStream({
+            metadata: {
+                contentType: mime.lookup(file)
+            },
+            resumable: false,
+            gzip: true
         });
 
-        if (!this.file.tempFilePath) {
-            await fs.remove(tmpPath);
-        }
+        await stream.write(this.file.data);
+        await stream.end();
 
-        return Promise.resolve({
-            path: filepath,
-            filename: name,
-            original: `https://${data[0].metadata.bucket}/${data[0].metadata.name}`,
-            ext: this.ext
+        return new Promise<void>((
+            resolve: (data: any) => void
+        ): void => {
+            stream.on('finish', (): void => {
+                resolve(bucketFile.getMetadata());
+            });
         });
+    }
+
+    protected getUploadData(mvData: any, relativePath: string, name: string): any {
+        const data: any = mvData[0];
+
+        const json: any = super.getUploadData(mvData, relativePath, name);
+        json.original = `https://${data.bucket}/${data.name}`;
+
+        return json;
     }
 }
 

@@ -5,101 +5,47 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const aws_sdk_1 = __importDefault(require("aws-sdk"));
 const debug_1 = __importDefault(require("debug"));
-const fs_extra_1 = __importDefault(require("fs-extra"));
 const sharp_1 = __importDefault(require("sharp"));
 const s3Uploader_1 = __importDefault(require("../s3/s3Uploader"));
 const imageUpload_1 = __importDefault(require("./imageUpload"));
 /* Module */
-const debug = debug_1.default('module:upload-image-s3');
+const debug = debug_1.default('module:upload-s3-image');
 class S3ImageUpload extends imageUpload_1.default {
     constructor(config, uploadConfig) {
+        var _a;
         super(config, uploadConfig);
-        this.s3 = new aws_sdk_1.default.S3({
-            accessKeyId: this.config.aws.key,
-            secretAccessKey: this.config.aws.secret
-        });
-    }
-    async upload(ref) {
-        debug('Uploading file and doing resizes...');
-        const env = (process.env.NODE_ENV !== 'production' ? `${process.env.NODE_ENV}/` : '');
-        const name = this.uploadConfig.prefix.replace(/\//ig, '_');
-        const filename = `${ref}/${name}${this.ext}`;
-        const width = this.getWidth();
-        const height = this.getHeight();
-        debug(`Saving original (${width}x${height})`);
-        const filepath = `${env}${this.uploadConfig.dir}${filename}`;
-        let data = await s3Uploader_1.default.upload(this.s3, {
-            Bucket: this.uploadConfig.bucket,
-            Key: filepath,
-            Body: this.file.data
-        });
-        const json = {};
-        json.path = filepath;
-        json.filename = filename;
-        json.original = data.Location;
-        json.ext = this.ext;
-        if (this.uploadConfig.sizes) {
-            for (const size of this.uploadConfig.sizes) {
-                debug(`Resizing to: ${size.tag} (${size.width ? size.width : 'auto'}x${size.height ? size.height : 'auto'})`);
-                const resizedName = `${ref}/${name}_${size.tag}${this.ext}`;
-                const resizedPath = `/tmp/${resizedName}`;
-                if (!await fs_extra_1.default.pathExists(`/tmp/${ref}`)) {
-                    debug('Creating upload directory...');
-                    await fs_extra_1.default.mkdirs(`/tmp/${ref}`);
-                }
-                await this.image.resize(size.width, size.height).toFile(resizedPath);
-                data = await s3Uploader_1.default.upload(this.s3, {
-                    Bucket: this.uploadConfig.bucket,
-                    Key: `${env}/${this.uploadConfig.dir}${resizedName}`,
-                    Body: fs_extra_1.default.readFileSync(resizedPath)
-                });
-                json[size.tag] = data.Location;
-            }
+        if (!((_a = config.aws) === null || _a === void 0 ? void 0 : _a.key) || !config.aws.secret) {
+            throw new Error('Cloud authentication data was not provided.');
         }
-        return Promise.resolve(json);
+        if (!uploadConfig.bucket) {
+            throw new Error('Cloud config. was not provided.');
+        }
+        this.s3 = new aws_sdk_1.default.S3({
+            accessKeyId: config.aws.key,
+            secretAccessKey: config.aws.secret
+        });
     }
     async save(ref, ext, buffer) {
-        debug('Uploading file and doing resizes...');
-        const env = (process.env.NODE_ENV !== 'production' ? `${process.env.NODE_ENV}/` : '');
-        const name = this.uploadConfig.prefix.replace(/\//ig, '_');
-        const filename = `${ref}/${name}${ext}`;
-        const image = sharp_1.default(buffer);
-        const meta = await image.metadata();
-        this.image = image;
-        this.metadata = meta;
-        const width = this.getWidth();
-        const height = this.getHeight();
-        debug(`Saving original (${width}x${height})`);
-        const filepath = `${env}${this.uploadConfig.dir}${filename}`;
-        let data = await s3Uploader_1.default.upload(this.s3, {
+        this.file = {
+            data: buffer
+        };
+        this.image = sharp_1.default(buffer);
+        this.metadata = await this.image.metadata();
+        this.ext = ext;
+        return this.upload(ref);
+    }
+    async mv(root, path, file) {
+        debug('Uploading image to AWS S3');
+        return s3Uploader_1.default.upload(this.s3, {
             Bucket: this.uploadConfig.bucket,
-            Key: filepath,
-            Body: buffer
+            Key: path + file,
+            Body: await this.image.toBuffer()
         });
-        const json = {};
-        json.path = filepath;
-        json.filename = filename;
-        json.original = data.Location;
-        json.ext = ext;
-        if (this.uploadConfig.sizes) {
-            for (const size of this.uploadConfig.sizes) {
-                debug(`Resizing to: ${size.tag} (${size.width ? size.width : 'auto'}x${size.height ? size.height : 'auto'})`);
-                const resizedName = `${ref}/${name}_${size.tag}${ext}`;
-                const resizedPath = `/tmp/${resizedName}`;
-                if (!await fs_extra_1.default.pathExists(`/tmp/${ref}`)) {
-                    debug('Creating upload directory...');
-                    await fs_extra_1.default.mkdirs(`/tmp/${ref}`);
-                }
-                await image.resize(size.width, size.height).toFile(resizedPath);
-                data = await s3Uploader_1.default.upload(this.s3, {
-                    Bucket: this.uploadConfig.bucket,
-                    Key: `${env}/${this.uploadConfig.dir}${resizedName}`,
-                    Body: fs_extra_1.default.readFileSync(resizedPath)
-                });
-                json[size.tag] = data.Location;
-            }
-        }
-        return Promise.resolve(json);
+    }
+    getUploadData(mvData, relativePath, name) {
+        const json = super.getUploadData(mvData, relativePath, name);
+        json.original = mvData.Location;
+        return json;
     }
 }
 exports.default = S3ImageUpload;

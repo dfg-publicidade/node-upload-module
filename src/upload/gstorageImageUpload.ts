@@ -1,93 +1,64 @@
-import { Storage } from '@google-cloud/storage';
-import appDebugger from 'debug';
-import fs from 'fs-extra';
+import { File, Storage } from '@google-cloud/storage';
+import { UploadedFile } from 'express-fileupload';
 import mime from 'mime-type/with-db';
+import sharp from 'sharp';
 import CloudImageUploadConfig from '../interfaces/cloudImageUploadConfig';
 import Upload from '../interfaces/upload';
 import ImageUpload from './imageUpload';
 
 /* Module */
-const debug: appDebugger.IDebugger = appDebugger('module:upload-image-gstorage');
-
 class GStorageImageUpload extends ImageUpload implements Upload {
     protected uploadConfig: CloudImageUploadConfig;
 
-    public constructor(config: any, uploadConfig: CloudImageUploadConfig) {
-        super(config, uploadConfig);
+    public async save(ref: string, ext: string, buffer: Buffer): Promise<any> {
+        this.file = {
+            data: buffer
+        } as UploadedFile;
+
+        this.image = sharp(buffer);
+        this.metadata = await this.image.metadata();
+
+        this.ext = ext;
+
+        return this.upload(ref);
     }
 
-    public async upload(ref: string): Promise<any> {
-        debug('Uploading file and doing resizes...');
-
+    protected async mv(root: string, path: string, file: string): Promise<any> {
         const storage: Storage = new Storage();
 
-        const env: string = (process.env.NODE_ENV !== 'production' ? `${process.env.NODE_ENV}/` : '');
+        let bucketFile: File = storage.bucket(this.uploadConfig.bucket).file(path + file);
 
-        const name: string = this.uploadConfig.prefix.replace(/\//ig, '_');
-        const filename: string = `${ref}/${name}${this.ext}`;
+        await bucketFile.delete({ ignoreNotFound: true });
 
-        const width: number = this.getWidth();
-        const height: number = this.getHeight();
+        bucketFile = storage.bucket(this.uploadConfig.bucket).file(path + file);
 
-        debug(`Saving original (${width}x${height})`);
-
-        const filepath: string = `${env}${this.uploadConfig.dir}${filename}`;
-
-        let tmpPath: string;
-        if (this.file.tempFilePath) {
-            tmpPath = this.file.tempFilePath;
-        }
-        else {
-            tmpPath = `/tmp/${ref}`;
-
-            if (!await fs.pathExists('/tmp')) {
-                debug('Creating upload directory...');
-                await fs.mkdirs('/tmp');
-            }
-
-            await fs.writeFile(tmpPath, this.file.data);
-        }
-
-        let data: any = await storage.bucket(this.uploadConfig.bucket).upload(tmpPath, {
-            destination: filepath,
-            gzip: true,
-            contentType: mime.lookup(this.ext) as string
+        const stream: any = bucketFile.createWriteStream({
+            metadata: {
+                contentType: mime.lookup(file)
+            },
+            resumable: false,
+            gzip: true
         });
 
-        const json: any = {};
-        json.path = filepath;
-        json.filename = filename;
-        json.original = `https://${data[0].metadata.bucket}/${data[0].metadata.name}`;
-        json.ext = this.ext;
+        await stream.write(await this.image.toBuffer());
+        await stream.end();
 
-        if (this.uploadConfig.sizes) {
-            for (const size of this.uploadConfig.sizes) {
-                debug(`Resizing to: ${size.tag} (${size.width ? size.width : 'auto'}x${size.height ? size.height : 'auto'})`);
+        return new Promise<void>((
+            resolve: (data: any) => void
+        ): void => {
+            stream.on('finish', (): void => {
+                resolve(bucketFile.getMetadata());
+            });
+        });
+    }
 
-                const resizedName: string = `${ref}/${name}_${size.tag}${this.ext}`;
-                const resizedPath: string = `/tmp/${resizedName}`;
+    protected getUploadData(mvData: any, relativePath: string, name: string): any {
+        const data: any = mvData[0];
 
-                if (!await fs.pathExists(`/tmp/${ref}`)) {
-                    debug('Creating upload directory...');
-                    await fs.mkdirs(`/tmp/${ref}`);
-                }
+        const json: any = super.getUploadData(mvData, relativePath, name);
+        json.original = `https://${data.bucket}/${data.name}`;
 
-                await this.image.resize(size.width, size.height).toFile(resizedPath);
-
-                data = await storage.bucket(this.uploadConfig.bucket).upload(resizedPath, {
-                    destination: `${env}/${this.uploadConfig.dir}${resizedName}`,
-                    gzip: true
-                });
-
-                json[size.tag] = `https://${data[0].metadata.bucket}/${data[0].metadata.name}`;
-            }
-        }
-
-        if (!this.file.tempFilePath) {
-            await fs.remove(tmpPath);
-        }
-
-        return Promise.resolve(json);
+        return json;
     }
 }
 

@@ -8,6 +8,7 @@ declare class FileUpload implements Upload {
     protected uploadConfig: UploadConfig;
     protected file: UploadedFile;
     protected ext: string;
+    protected suffix: string;
     constructor(config: any, uploadConfig: UploadConfig);
     init(req: Request): Promise<void>;
     hasFile(): boolean;
@@ -15,9 +16,9 @@ declare class FileUpload implements Upload {
     md5(): string;
     validate(): UploadError;
     upload(ref: string): Promise<any>;
-    protected getExt(): string[];
-    protected getSizeInKBytes(): number;
-    protected mkdirs(path: string): Promise<void>;
-    protected mv(path: string): Promise<any>;
+    protected getMaxSizeInKBytes(): number;
+    protected getAcceptedExt(): string[];
+    protected mv(root: string, path: string, file: string): Promise<any>;
+    protected getUploadData(mvData: any, relativePath: string, name: string): any;
 }
 export default FileUpload;

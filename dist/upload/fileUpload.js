@@ -6,15 +6,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const debug_1 = __importDefault(require("debug"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const path_1 = __importDefault(require("path"));
+const uploadUtil_1 = __importDefault(require("./uploadUtil"));
 /* Module */
 const debug = debug_1.default('module:upload-file');
 const byteToKByteConv = 1024;
 class FileUpload {
     constructor(config, uploadConfig) {
+        if (!config) {
+            throw new Error('Application config. was not provided.');
+        }
+        if (!uploadConfig) {
+            throw new Error('Upload config. was not provided.');
+        }
         this.config = config;
         this.uploadConfig = uploadConfig;
     }
     async init(req) {
+        if (!req) {
+            throw new Error('Request was not provided.');
+        }
         if (req.files) {
             debug('Parsing uploaded file...');
             const file = req.files[this.uploadConfig.name] ? req.files[this.uploadConfig.name] : undefined;
@@ -35,16 +45,19 @@ class FileUpload {
         return this.file;
     }
     md5() {
+        if (!this.file) {
+            return undefined;
+        }
         return this.file.md5;
     }
     validate() {
-        const sizeInKBytes = this.getSizeInKBytes();
-        const ext = this.getExt();
+        const maxSizeInKBytes = this.getMaxSizeInKBytes();
+        const ext = this.getAcceptedExt();
         if (!this.file || !this.file.name) {
-            debug('File file not received');
+            debug('File not received');
             return 'EMPTY_FILE';
         }
-        else if (sizeInKBytes && this.file.data.length > sizeInKBytes * byteToKByteConv) {
+        else if (maxSizeInKBytes && this.file.data.length > maxSizeInKBytes * byteToKByteConv) {
             debug('The file size exceeds the allowed limits');
             return 'FILE_TOO_LARGE';
         }
@@ -56,39 +69,39 @@ class FileUpload {
         return undefined;
     }
     async upload(ref) {
-        const uploadPath = this.config.path + this.uploadConfig.dir;
         debug('Uploading file...');
-        await this.mkdirs(uploadPath + ref);
-        debug('Saving file');
-        const name = this.uploadConfig.prefix.replace(/\//ig, '_');
-        const path = `${ref}/${name}${this.ext}`;
-        return this.mv(uploadPath + path);
+        const relativePath = uploadUtil_1.default.getEnv() + this.uploadConfig.dir + ref + '/';
+        const name = uploadUtil_1.default.getFileName(this.uploadConfig.prefix, this.ext, this.suffix);
+        const mvData = await this.mv(this.config.path, relativePath, name);
+        return Promise.resolve(this.getUploadData(mvData, relativePath, name));
     }
-    getExt() {
+    getMaxSizeInKBytes() {
+        var _a;
+        if (this.uploadConfig && this.uploadConfig.rules && this.uploadConfig.rules.sizeInKBytes) {
+            return this.uploadConfig.rules.sizeInKBytes;
+        }
+        if (!((_a = this.file) === null || _a === void 0 ? void 0 : _a.data)) {
+            return 0;
+        }
+        return this.file.data.length;
+    }
+    getAcceptedExt() {
         if (this.uploadConfig && this.uploadConfig.rules && this.uploadConfig.rules.ext) {
             return this.uploadConfig.rules.ext;
         }
         return [this.ext];
     }
-    getSizeInKBytes() {
-        if (this.uploadConfig && this.uploadConfig.rules && this.uploadConfig.rules.sizeInKBytes) {
-            return this.uploadConfig.rules.sizeInKBytes;
-        }
-        return this.file.data.length;
+    async mv(root, path, file) {
+        await uploadUtil_1.default.mkdirs(root + path);
+        return this.file.mv(root + path + file);
     }
-    async mkdirs(path) {
-        if (!await fs_extra_1.default.pathExists(path)) {
-            debug('Creating upload directory...');
-            await fs_extra_1.default.mkdirs(path);
-        }
-    }
-    async mv(path) {
-        await this.file.mv(path);
-        return Promise.resolve({
-            original: this.config.url + this.uploadConfig.dir + path,
-            filename: this.uploadConfig.dir + path,
+    getUploadData(mvData, relativePath, name) {
+        const url = this.config.url + relativePath;
+        return {
+            original: url + name,
+            filename: relativePath + name,
             ext: this.ext
-        });
+        };
     }
 }
 exports.default = FileUpload;

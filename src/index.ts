@@ -6,7 +6,6 @@ import UploadError from './enums/uploadError';
 import CloudConfig from './interfaces/cloudConfig';
 import CloudImageUploadConfig from './interfaces/cloudImageUploadConfig';
 import CloudUploadConfig from './interfaces/cloudUploadConfig';
-import Download from './interfaces/download';
 import ImageUploadConfig from './interfaces/imageUploadConfig';
 import Upload from './interfaces/upload';
 import UploadConfig from './interfaces/uploadConfig';
@@ -29,7 +28,6 @@ export {
     CloudConfig,
     CloudImageUploadConfig,
     CloudUploadConfig,
-    Download,
     ImageUploadConfig,
     Upload,
     UploadConfig,
