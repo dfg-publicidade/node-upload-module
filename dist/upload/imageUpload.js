@@ -60,6 +60,10 @@ class ImageUpload extends fileUpload_1.default {
         const height = this.metadata.height;
         debug(`Saving original (${width}x${height})`);
         const json = await super.upload(ref);
+        if (this.uploadConfig.convertTo) {
+            this.ext = `.${this.uploadConfig.convertTo}`;
+            this.image = this.image.toFormat(this.uploadConfig.convertTo);
+        }
         if (this.uploadConfig.sizes) {
             for (const size of this.uploadConfig.sizes) {
                 const sizeWidth = size.width ? size.width : 'auto';
@@ -91,7 +95,7 @@ class ImageUpload extends fileUpload_1.default {
         if (this.uploadConfig && this.uploadConfig.rules && this.uploadConfig.rules.ext) {
             return this.uploadConfig.rules.ext;
         }
-        return ['.jpg', '.jpeg', '.png'];
+        return ['.jpg', '.jpeg', '.png', '.webp'];
     }
     async mv(root, path, file) {
         debug(`Storing file: ${root + path + file}`);

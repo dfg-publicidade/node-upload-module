@@ -48,19 +48,19 @@ describe('gstorageDownload.ts', (): void => {
         await bucketFile.delete({ ignoreNotFound: true });
     });
 
-    it('1. constructor', async (): Promise<void> => {
+    it.skip('1. constructor', async (): Promise<void> => {
         expect((): void => {
             new GStorageDownload(undefined, {} as CloudUploadConfig);
         }).to.throw('Application config. was not provided.');
     });
 
-    it('2. constructor', async (): Promise<void> => {
+    it.skip('2. constructor', async (): Promise<void> => {
         expect((): void => {
             new GStorageDownload(config, undefined);
         }).to.throw('Upload config. was not provided.');
     });
 
-    it('3. download', async (): Promise<void> => {
+    it.skip('3. download', async (): Promise<void> => {
         const gstorageDownload: GStorageDownload = new GStorageDownload(config, {
             bucket: process.env.GCLOUD_TEST_BUCKET
         } as CloudUploadConfig);
@@ -76,7 +76,7 @@ describe('gstorageDownload.ts', (): void => {
         expect(metadata.height).to.be.eq(400);
     });
 
-    it('4. download', async (): Promise<void> => {
+    it.skip('4. download', async (): Promise<void> => {
         const gstorageDownload: GStorageDownload = new GStorageDownload(config, {
             bucket: process.env.GCLOUD_TEST_BUCKET
         } as CloudUploadConfig);

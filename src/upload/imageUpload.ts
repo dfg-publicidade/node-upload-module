@@ -85,6 +85,11 @@ class ImageUpload extends FileUpload implements Upload {
 
         const json: any = await super.upload(ref);
 
+        if (this.uploadConfig.convertTo) {
+            this.ext = `.${this.uploadConfig.convertTo}`;
+            this.image = this.image.toFormat(this.uploadConfig.convertTo);
+        }
+
         if (this.uploadConfig.sizes) {
             for (const size of this.uploadConfig.sizes) {
                 const sizeWidth: any = size.width ? size.width : 'auto';
@@ -128,7 +133,7 @@ class ImageUpload extends FileUpload implements Upload {
             return this.uploadConfig.rules.ext;
         }
 
-        return ['.jpg', '.jpeg', '.png'];
+        return ['.jpg', '.jpeg', '.png', '.webp'];
     }
 
     protected async mv(root: string, path: string, file: string): Promise<any> {

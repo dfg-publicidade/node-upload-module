@@ -8,6 +8,7 @@ interface ImageUploadConfig extends UploadConfig {
         sizeInKBytes?: number;
         ext?: string[];
     };
+    convertTo?: 'jpeg' | 'png' | 'webp';
     sizes?: {
         tag: string;
         width?: number;
