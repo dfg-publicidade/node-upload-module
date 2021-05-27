@@ -60,9 +60,7 @@ class ImageUpload extends fileUpload_1.default {
         const height = this.metadata.height;
         if (this.uploadConfig.convertTo) {
             this.ext = `.${this.uploadConfig.convertTo}`;
-            this.image = this.image.toFormat(this.uploadConfig.convertTo, {
-                lossless: true
-            });
+            this.image = this.image.toFormat(this.uploadConfig.convertTo, this.uploadConfig.webp);
         }
         debug(`Saving original (${width}x${height})`);
         const json = await super.upload(ref);

@@ -83,9 +83,7 @@ class ImageUpload extends FileUpload implements Upload {
 
         if (this.uploadConfig.convertTo) {
             this.ext = `.${this.uploadConfig.convertTo}`;
-            this.image = this.image.toFormat(this.uploadConfig.convertTo, {
-                lossless: true
-            });
+            this.image = this.image.toFormat(this.uploadConfig.convertTo, this.uploadConfig.webp);
         }
 
         debug(`Saving original (${width}x${height})`);
