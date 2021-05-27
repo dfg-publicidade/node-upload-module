@@ -81,14 +81,14 @@ class ImageUpload extends FileUpload implements Upload {
         const width: number = this.metadata.width;
         const height: number = this.metadata.height;
 
-        debug(`Saving original (${width}x${height})`);
-
-        const json: any = await super.upload(ref);
-
         if (this.uploadConfig.convertTo) {
             this.ext = `.${this.uploadConfig.convertTo}`;
             this.image = this.image.toFormat(this.uploadConfig.convertTo);
         }
+
+        debug(`Saving original (${width}x${height})`);
+
+        const json: any = await super.upload(ref);
 
         if (this.uploadConfig.sizes) {
             for (const size of this.uploadConfig.sizes) {
