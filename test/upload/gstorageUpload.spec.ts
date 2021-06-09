@@ -49,7 +49,7 @@ describe('gstorageUpload.ts', (): void => {
                     dir: 'test/'
                 } as CloudUploadConfig);
 
-                await fileUpload.init.skip(req);
+                await fileUpload.init(req);
 
                 let upload: any;
 

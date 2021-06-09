@@ -57,7 +57,7 @@ describe('gstorageImageUpload.ts', (): void => {
                     dir: 'test/'
                 } as CloudImageUploadConfig);
 
-                await imageUpload.init.skip(req);
+                await imageUpload.init(req);
 
                 res.json({
                     hasImage: imageUpload.hasFile(),
@@ -92,7 +92,7 @@ describe('gstorageImageUpload.ts', (): void => {
                     dir: 'test/'
                 } as CloudImageUploadConfig);
 
-                await imageUpload.init.skip(req);
+                await imageUpload.init(req);
 
                 res.json({
                     hasImage: imageUpload.hasFile(),
@@ -127,7 +127,7 @@ describe('gstorageImageUpload.ts', (): void => {
                     dir: 'test/'
                 } as CloudImageUploadConfig);
 
-                await imageUpload.init.skip(req);
+                await imageUpload.init(req);
 
                 res.json({
                     hasImage: imageUpload.hasFile(),
@@ -156,7 +156,7 @@ describe('gstorageImageUpload.ts', (): void => {
                     dir: 'test/'
                 } as CloudImageUploadConfig);
 
-                await imageUpload.init.skip(req);
+                await imageUpload.init(req);
 
                 res.json({
                     hasImage: imageUpload.hasFile(),
@@ -185,7 +185,7 @@ describe('gstorageImageUpload.ts', (): void => {
                     dir: 'test/'
                 } as CloudImageUploadConfig);
 
-                await imageUpload.init.skip(req);
+                await imageUpload.init(req);
 
                 let upload: any;
 
@@ -230,7 +230,7 @@ describe('gstorageImageUpload.ts', (): void => {
                     }]
                 } as CloudImageUploadConfig);
 
-                await imageUpload.init.skip(req);
+                await imageUpload.init(req);
 
                 let upload: any;
 
@@ -270,7 +270,7 @@ describe('gstorageImageUpload.ts', (): void => {
                     }]
                 } as CloudImageUploadConfig);
 
-                await imageUpload.init.skip(req);
+                await imageUpload.init(req);
 
                 let upload: any;
 
@@ -310,7 +310,7 @@ describe('gstorageImageUpload.ts', (): void => {
                     }]
                 } as CloudImageUploadConfig);
 
-                await imageUpload.init.skip(req);
+                await imageUpload.init(req);
 
                 let upload: any;
 
