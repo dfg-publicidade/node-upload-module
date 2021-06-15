@@ -322,6 +322,42 @@ describe('imageUpload.ts', (): void => {
             }
         });
 
+        exp.post('/image9', async (req: Request, res: Response): Promise<void> => {
+            try {
+                const imageUpload: ImageUpload = new ImageUpload(config.upload, {
+                    name: 'file',
+                    prefix: 'f',
+                    dir: 'test/',
+                    convertTo: 'jpeg'
+                } as ImageUploadConfig);
+
+                await imageUpload.init(req);
+
+                let upload: any;
+
+                if (!imageUpload.imgValidate()) {
+                    upload = await imageUpload.upload('ref-1');
+                }
+
+                res.json({
+                    hasImage: imageUpload.hasFile(),
+                    md5: imageUpload.md5(),
+                    validate: imageUpload.imgValidate(),
+                    file: imageUpload.getFile(),
+                    image: imageUpload.getImage(),
+                    metadata: imageUpload.getMetadata(),
+                    upload
+                });
+                res.end();
+            }
+            catch (err) {
+                // eslint-disable-next-line no-console
+                console.error(err);
+                res.write(err.message);
+                res.end();
+            }
+        });
+
         return new Promise<void>((
             resolve: () => void
         ): void => {
@@ -650,5 +686,42 @@ describe('imageUpload.ts', (): void => {
         expect(metadataSm.width).to.be.eq(400);
         // eslint-disable-next-line no-magic-numbers
         expect(metadataSm.height).to.be.eq(400);
+    });
+
+    it('14. upload', async (): Promise<void> => {
+        const res: ChaiHttp.Response = await chai.request(exp).keepOpen()
+            .post('/image9')
+            .field('Content-Type', 'multipart/form-data')
+            .attach('file', __dirname + '/../test.png', 'test.png');
+
+        // eslint-disable-next-line no-magic-numbers
+        expect(res).to.have.status(200);
+        expect(res.body).to.have.property('hasImage').eq(true);
+        expect(res.body).to.have.property('md5').not.null;
+        expect(res.body.file).to.exist;
+        expect(res.body.file).to.have.property('name').eq('test.png');
+        expect(res.body.file).to.have.property('data');
+        expect(res.body.file).to.have.property('size');
+        expect(res.body.file).to.have.property('encoding');
+        expect(res.body.file).to.have.property('tempFilePath');
+        expect(res.body.file).to.have.property('mimetype');
+        expect(res.body.file).to.have.property('md5');
+        expect(res.body.image).to.exist;
+        expect(res.body.metadata).to.exist;
+        expect(res.body.metadata).to.have.property('format').eq('png');
+        expect(res.body.upload).to.have.property('original').eq(config.upload.url + 'test/test/ref-1/f.jpeg');
+        expect(res.body.upload).to.have.property('filename').eq('test/test/ref-1/f.jpeg');
+        expect(res.body.upload).to.have.property('ext').eq('.jpeg');
+
+        expect(chaiFiles.dir(__dirname + '/upload-dest')).to.exist;
+        expect(chaiFiles.dir(__dirname + '/upload-dest/test/')).to.exist;
+
+        const image: Sharp = sharp(__dirname + '/upload-dest/' + res.body.upload.filename);
+        const metadata: any = await image.metadata();
+
+        // eslint-disable-next-line no-magic-numbers
+        expect(metadata.width).to.be.eq(600);
+        // eslint-disable-next-line no-magic-numbers
+        expect(metadata.height).to.be.eq(400);
     });
 });
