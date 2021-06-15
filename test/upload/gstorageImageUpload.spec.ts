@@ -359,7 +359,7 @@ describe('gstorageImageUpload.ts', (): void => {
         }
     }));
 
-    it.skip('1. validate', async (): Promise<void> => {
+    it('1. validate', async (): Promise<void> => {
         const res: ChaiHttp.Response = await chai.request(exp).keepOpen()
             .post('/image1')
             .field('Content-Type', 'multipart/form-data');
@@ -369,7 +369,7 @@ describe('gstorageImageUpload.ts', (): void => {
         expect(res.body).to.have.property('validate').eq('EMPTY_FILE');
     });
 
-    it.skip('2. validate', async (): Promise<void> => {
+    it('2. validate', async (): Promise<void> => {
         const res: ChaiHttp.Response = await chai.request(exp).keepOpen()
             .post('/image1')
             .field('Content-Type', 'multipart/form-data')
@@ -380,7 +380,7 @@ describe('gstorageImageUpload.ts', (): void => {
         expect(res.body).to.have.property('validate').eq('OUT_OF_DIMENSION');
     });
 
-    it.skip('3. validate', async (): Promise<void> => {
+    it('3. validate', async (): Promise<void> => {
         const res: ChaiHttp.Response = await chai.request(exp).keepOpen()
             .post('/image2')
             .field('Content-Type', 'multipart/form-data')
@@ -391,7 +391,7 @@ describe('gstorageImageUpload.ts', (): void => {
         expect(res.body).to.have.property('validate').eq('OUT_OF_DIMENSION');
     });
 
-    it.skip('4. validate', async (): Promise<void> => {
+    it('4. validate', async (): Promise<void> => {
         const res: ChaiHttp.Response = await chai.request(exp).keepOpen()
             .post('/image3')
             .field('Content-Type', 'multipart/form-data')
@@ -402,7 +402,7 @@ describe('gstorageImageUpload.ts', (): void => {
         expect(res.body).to.have.property('validate').eq('INVALID_MODE');
     });
 
-    it.skip('5. validate', async (): Promise<void> => {
+    it('5. validate', async (): Promise<void> => {
         const res: ChaiHttp.Response = await chai.request(exp).keepOpen()
             .post('/image3')
             .field('Content-Type', 'multipart/form-data')
@@ -425,7 +425,7 @@ describe('gstorageImageUpload.ts', (): void => {
         expect(res.body.metadata).to.have.property('format').eq('png');
     });
 
-    it.skip('6. validate', async (): Promise<void> => {
+    it('6. validate', async (): Promise<void> => {
         const res: ChaiHttp.Response = await chai.request(exp).keepOpen()
             .post('/image4')
             .field('Content-Type', 'multipart/form-data')
@@ -448,7 +448,7 @@ describe('gstorageImageUpload.ts', (): void => {
         expect(res.body.metadata).to.have.property('format').eq('png');
     });
 
-    it.skip('7. upload', async (): Promise<void> => {
+    it('7. upload', async (): Promise<void> => {
         const res: ChaiHttp.Response = await chai.request(exp).keepOpen()
             .post('/image5')
             .field('Content-Type', 'multipart/form-data')
@@ -491,7 +491,7 @@ describe('gstorageImageUpload.ts', (): void => {
         expect(metadata.height).to.be.eq(400);
     });
 
-    it.skip('8. upload', async (): Promise<void> => {
+    it('8. upload', async (): Promise<void> => {
         const res: ChaiHttp.Response = await chai.request(exp).keepOpen()
             .post('/image6')
             .field('Content-Type', 'multipart/form-data')
@@ -570,7 +570,7 @@ describe('gstorageImageUpload.ts', (): void => {
         expect(metadataXs.height).to.be.eq(100);
     });
 
-    it.skip('9. upload', async (): Promise<void> => {
+    it('9. upload', async (): Promise<void> => {
         const res: ChaiHttp.Response = await chai.request(exp).keepOpen()
             .post('/image7')
             .field('Content-Type', 'multipart/form-data')
@@ -627,7 +627,7 @@ describe('gstorageImageUpload.ts', (): void => {
         expect(metadataSm.height).to.be.eq(267);
     });
 
-    it.skip('10. upload', async (): Promise<void> => {
+    it('10. upload', async (): Promise<void> => {
         const res: ChaiHttp.Response = await chai.request(exp).keepOpen()
             .post('/image8')
             .field('Content-Type', 'multipart/form-data')
@@ -684,7 +684,7 @@ describe('gstorageImageUpload.ts', (): void => {
         expect(metadataSm.height).to.be.eq(400);
     });
 
-    it.skip('11. save', async (): Promise<void> => {
+    it('11. save', async (): Promise<void> => {
         const buffer: Buffer = await fs.readFile(__dirname + '/../test.png');
 
         const gstorageImageUpload: GStorageImageUpload = new GStorageImageUpload(config.upload, {

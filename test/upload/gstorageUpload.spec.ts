@@ -94,7 +94,7 @@ describe('gstorageUpload.ts', (): void => {
         }
     }));
 
-    it.skip('1. upload', async (): Promise<void> => {
+    it('1. upload', async (): Promise<void> => {
         const res: ChaiHttp.Response = await chai.request(exp).keepOpen()
             .post('/file1')
             .field('Content-Type', 'multipart/form-data')
@@ -126,7 +126,7 @@ describe('gstorageUpload.ts', (): void => {
         expect(response.status).to.eq(200);
     });
 
-    it.skip('2. save', async (): Promise<void> => {
+    it('2. save', async (): Promise<void> => {
         const buffer: Buffer = await fs.readFile(__dirname + '/../test.txt');
 
         const gstorageUpload: GStorageUpload = new GStorageUpload(config.upload, {
