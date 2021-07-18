@@ -15,9 +15,9 @@ declare class ImageUpload extends FileUpload implements Upload {
     getMetadata(): any;
     imgValidate(): ImageUploadError;
     upload(ref: string): Promise<any>;
-    protected getDefaultWidth(): number;
-    protected getDefaultHeight(): number;
-    protected getAcceptedExt(): string[];
+    getDefaultWidth(): number;
+    getDefaultHeight(): number;
+    getAcceptedExt(): string[];
     protected mv(root: string, path: string, file: string): Promise<any>;
 }
 export default ImageUpload;

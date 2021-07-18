@@ -112,7 +112,7 @@ class ImageUpload extends FileUpload implements Upload {
         return Promise.resolve(json);
     }
 
-    protected getDefaultWidth(): number {
+    public getDefaultWidth(): number {
         if (this.uploadConfig && this.uploadConfig.rules && this.uploadConfig.rules.width) {
             return this.uploadConfig.rules.width;
         }
@@ -120,7 +120,7 @@ class ImageUpload extends FileUpload implements Upload {
         return this.metadata.width;
     }
 
-    protected getDefaultHeight(): number {
+    public getDefaultHeight(): number {
         if (this.uploadConfig && this.uploadConfig.rules && this.uploadConfig.rules.height) {
             return this.uploadConfig.rules.height;
         }
@@ -128,7 +128,7 @@ class ImageUpload extends FileUpload implements Upload {
         return this.metadata.height;
     }
 
-    protected getAcceptedExt(): string[] {
+    public getAcceptedExt(): string[] {
         if (this.uploadConfig && this.uploadConfig.rules && this.uploadConfig.rules.ext) {
             return this.uploadConfig.rules.ext;
         }

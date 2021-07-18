@@ -107,7 +107,7 @@ class FileUpload implements Upload {
         return Promise.resolve(this.getUploadData(mvData, relativePath, name));
     }
 
-    protected getMaxSizeInKBytes(): number {
+    public getMaxSizeInKBytes(): number {
         if (this.uploadConfig && this.uploadConfig.rules && this.uploadConfig.rules.sizeInKBytes) {
             return this.uploadConfig.rules.sizeInKBytes;
         }
@@ -119,7 +119,7 @@ class FileUpload implements Upload {
         return this.file.data.length;
     }
 
-    protected getAcceptedExt(): string[] {
+    public getAcceptedExt(): string[] {
         if (this.uploadConfig && this.uploadConfig.rules && this.uploadConfig.rules.ext) {
             return this.uploadConfig.rules.ext;
         }

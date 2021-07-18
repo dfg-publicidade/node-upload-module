@@ -16,8 +16,8 @@ declare class FileUpload implements Upload {
     md5(): string;
     validate(): UploadError;
     upload(ref: string): Promise<any>;
-    protected getMaxSizeInKBytes(): number;
-    protected getAcceptedExt(): string[];
+    getMaxSizeInKBytes(): number;
+    getAcceptedExt(): string[];
     protected mv(root: string, path: string, file: string): Promise<any>;
     protected getUploadData(mvData: any, relativePath: string, name: string): any;
 }
