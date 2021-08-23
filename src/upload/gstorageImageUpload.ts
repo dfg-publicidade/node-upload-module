@@ -29,39 +29,34 @@ class GStorageImageUpload extends ImageUpload implements Upload {
     }
 
     protected async mv(root: string, path: string, file: string): Promise<any> {
-        try {
-            debug(`Storing file: ${path + file}`);
+        debug(`Storing file: ${path + file}`);
 
-            const storage: Storage = new Storage();
+        const storage: Storage = new Storage();
 
-            let bucketFile: File = storage.bucket(this.uploadConfig.bucket).file(path + file);
+        let bucketFile: File = storage.bucket(this.uploadConfig.bucket).file(path + file);
 
-            await bucketFile.delete({ ignoreNotFound: true });
+        await bucketFile.delete({ ignoreNotFound: true });
 
-            bucketFile = storage.bucket(this.uploadConfig.bucket).file(path + file);
+        bucketFile = storage.bucket(this.uploadConfig.bucket).file(path + file);
 
-            const stream: any = bucketFile.createWriteStream({
-                metadata: {
-                    contentType: mime.lookup(file)
-                },
-                resumable: false,
-                gzip: true
+        const stream: any = bucketFile.createWriteStream({
+            metadata: {
+                contentType: mime.lookup(file)
+            },
+            resumable: false,
+            gzip: true
+        });
+
+        await stream.write(await this.image.toBuffer());
+        await stream.end();
+
+        return new Promise<void>((
+            resolve: (data: any) => void
+        ): void => {
+            stream.on('finish', (): void => {
+                resolve(bucketFile.getMetadata());
             });
-
-            await stream.write(await this.image.toBuffer());
-            await stream.end();
-
-            return new Promise<void>((
-                resolve: (data: any) => void
-            ): void => {
-                stream.on('finish', (): void => {
-                    resolve(bucketFile.getMetadata());
-                });
-            });
-        }
-        catch (error: any) {
-            return Promise.reject(error);
-        }
+        });
     }
 
     protected getUploadData(mvData: any, relativePath: string, name: string): any {
