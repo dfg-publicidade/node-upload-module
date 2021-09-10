@@ -28,7 +28,7 @@ class ImageUpload extends FileUpload implements Upload {
 
         if (this.hasFile()) {
             try {
-                this.image = sharp(this.getFile().data);
+                this.image = sharp(this.getFile().data, { failOnError: false });
                 this.metadata = await this.image.metadata();
             }
             catch (err: any) {

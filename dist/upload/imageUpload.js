@@ -17,7 +17,7 @@ class ImageUpload extends fileUpload_1.default {
         await super.init(req);
         if (this.hasFile()) {
             try {
-                this.image = sharp_1.default(this.getFile().data);
+                this.image = sharp_1.default(this.getFile().data, { failOnError: false });
                 this.metadata = await this.image.metadata();
             }
             catch (err) {
