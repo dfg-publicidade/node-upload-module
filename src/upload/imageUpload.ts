@@ -91,7 +91,7 @@ class ImageUpload extends FileUpload implements Upload {
 
             debug(`Saving ${this.uploadConfig.convertTo} (${width}x${height})`);
 
-            json[this.ext] = await super.upload(ref);
+            json[this.uploadConfig.convertTo] = await super.upload(ref);
         }
 
         if (this.uploadConfig.sizes) {

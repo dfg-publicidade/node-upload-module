@@ -64,7 +64,7 @@ class ImageUpload extends fileUpload_1.default {
             this.ext = `.${this.uploadConfig.convertTo}`;
             this.image = this.image.toFormat(this.uploadConfig.convertTo, this.uploadConfig.webp);
             debug(`Saving ${this.uploadConfig.convertTo} (${width}x${height})`);
-            json[this.ext] = await super.upload(ref);
+            json[this.uploadConfig.convertTo] = await super.upload(ref);
         }
         if (this.uploadConfig.sizes) {
             for (const size of this.uploadConfig.sizes) {
