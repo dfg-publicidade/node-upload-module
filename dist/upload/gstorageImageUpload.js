@@ -9,14 +9,14 @@ const with_db_1 = __importDefault(require("mime-type/with-db"));
 const sharp_1 = __importDefault(require("sharp"));
 const imageUpload_1 = __importDefault(require("./imageUpload"));
 /* Module */
-const debug = debug_1.default('module:upload-gstorage-image');
+const debug = (0, debug_1.default)('module:upload-gstorage-image');
 class GStorageImageUpload extends imageUpload_1.default {
     async save(ref, ext, buffer) {
         debug('Saving file...');
         this.file = {
             data: buffer
         };
-        this.image = sharp_1.default(buffer);
+        this.image = (0, sharp_1.default)(buffer);
         this.metadata = await this.image.metadata();
         this.ext = ext;
         return this.upload(ref);

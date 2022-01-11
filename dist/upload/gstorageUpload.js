@@ -8,7 +8,7 @@ const debug_1 = __importDefault(require("debug"));
 const with_db_1 = __importDefault(require("mime-type/with-db"));
 const fileUpload_1 = __importDefault(require("./fileUpload"));
 /* Module */
-const debug = debug_1.default('module:upload-gstorage-file');
+const debug = (0, debug_1.default)('module:upload-gstorage-file');
 class GStorageUpload extends fileUpload_1.default {
     async save(ref, ext, buffer) {
         debug('Saving file...');

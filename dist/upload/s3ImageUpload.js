@@ -9,7 +9,7 @@ const sharp_1 = __importDefault(require("sharp"));
 const s3Uploader_1 = __importDefault(require("../s3/s3Uploader"));
 const imageUpload_1 = __importDefault(require("./imageUpload"));
 /* Module */
-const debug = debug_1.default('module:upload-s3-image');
+const debug = (0, debug_1.default)('module:upload-s3-image');
 class S3ImageUpload extends imageUpload_1.default {
     constructor(config, uploadConfig) {
         var _a;
@@ -30,7 +30,7 @@ class S3ImageUpload extends imageUpload_1.default {
         this.file = {
             data: buffer
         };
-        this.image = sharp_1.default(buffer);
+        this.image = (0, sharp_1.default)(buffer);
         this.metadata = await this.image.metadata();
         this.ext = ext;
         return this.upload(ref);

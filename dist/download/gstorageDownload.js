@@ -7,7 +7,7 @@ const storage_1 = require("@google-cloud/storage");
 const debug_1 = __importDefault(require("debug"));
 const fileDownload_1 = __importDefault(require("./fileDownload"));
 /* Module */
-const debug = debug_1.default('module:download-gstorage');
+const debug = (0, debug_1.default)('module:download-gstorage');
 class GStorageDownload extends fileDownload_1.default {
     constructor(config, uploadConfig) {
         super();

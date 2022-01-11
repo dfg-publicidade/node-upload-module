@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const debug_1 = __importDefault(require("debug"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
 /* Module */
-const debug = debug_1.default('module:download-file');
+const debug = (0, debug_1.default)('module:download-file');
 class FileDownload {
     async download(path) {
         debug('Downloading file...');

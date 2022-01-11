@@ -8,7 +8,7 @@ const sharp_1 = __importDefault(require("sharp"));
 const fileUpload_1 = __importDefault(require("./fileUpload"));
 const uploadUtil_1 = __importDefault(require("./uploadUtil"));
 /* Module */
-const debug = debug_1.default('module:upload-image');
+const debug = (0, debug_1.default)('module:upload-image');
 class ImageUpload extends fileUpload_1.default {
     constructor(config, uploadConfig) {
         super(config, uploadConfig);
@@ -17,7 +17,7 @@ class ImageUpload extends fileUpload_1.default {
         await super.init(req);
         if (this.hasFile()) {
             try {
-                this.image = sharp_1.default(this.getFile().data, { failOnError: false });
+                this.image = (0, sharp_1.default)(this.getFile().data, { failOnError: false });
                 this.metadata = await this.image.metadata();
             }
             catch (err) {

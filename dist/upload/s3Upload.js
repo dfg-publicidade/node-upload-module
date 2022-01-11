@@ -8,7 +8,7 @@ const debug_1 = __importDefault(require("debug"));
 const s3Uploader_1 = __importDefault(require("../s3/s3Uploader"));
 const fileUpload_1 = __importDefault(require("./fileUpload"));
 /* Module */
-const debug = debug_1.default('module:upload-s3-file');
+const debug = (0, debug_1.default)('module:upload-s3-file');
 class S3Upload extends fileUpload_1.default {
     constructor(config, uploadConfig) {
         var _a;

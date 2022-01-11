@@ -7,7 +7,7 @@ const aws_sdk_1 = __importDefault(require("aws-sdk"));
 const debug_1 = __importDefault(require("debug"));
 const fileDownload_1 = __importDefault(require("./fileDownload"));
 /* Module */
-const debug = debug_1.default('module:download-s3');
+const debug = (0, debug_1.default)('module:download-s3');
 class S3Download extends fileDownload_1.default {
     constructor(config, cloudConfig) {
         var _a;

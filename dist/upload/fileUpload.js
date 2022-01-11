@@ -8,7 +8,7 @@ const fs_extra_1 = __importDefault(require("fs-extra"));
 const path_1 = __importDefault(require("path"));
 const uploadUtil_1 = __importDefault(require("./uploadUtil"));
 /* Module */
-const debug = debug_1.default('module:upload-file');
+const debug = (0, debug_1.default)('module:upload-file');
 const byteToKByteConv = 1024;
 class FileUpload {
     constructor(config, uploadConfig) {
