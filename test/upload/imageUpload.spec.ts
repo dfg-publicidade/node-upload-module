@@ -709,9 +709,9 @@ describe('imageUpload.ts', (): void => {
         expect(res.body.image).to.exist;
         expect(res.body.metadata).to.exist;
         expect(res.body.metadata).to.have.property('format').eq('png');
-        expect(res.body.upload).to.have.property('original').eq(config.upload.url + 'test/test/ref-1/f.jpeg');
-        expect(res.body.upload).to.have.property('filename').eq('test/test/ref-1/f.jpeg');
-        expect(res.body.upload).to.have.property('ext').eq('.jpeg');
+        expect(res.body.upload).to.have.property('original').eq(config.upload.url + 'test/test/ref-1/f.png');
+        expect(res.body.upload).to.have.property('filename').eq('test/test/ref-1/f.png');
+        expect(res.body.upload).to.have.property('ext').eq('.png');
 
         expect(chaiFiles.dir(__dirname + '/upload-dest')).to.exist;
         expect(chaiFiles.dir(__dirname + '/upload-dest/test/')).to.exist;
