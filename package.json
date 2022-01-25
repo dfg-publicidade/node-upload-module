@@ -15,7 +15,7 @@
         "@dfgpublicidade/node-files-module": "git+https://github.com/dfg-publicidade/node-files-module.git",
         "@dfgpublicidade/node-gcloud-module": "git+https://github.com/dfg-publicidade/node-gcloud-module.git",
         "express-fileupload": "1.2.1",
-        "sharp": "0.29.3"
+        "sharp": "0.26.2"
     },
     "devDependencies": {
         "@dfgpublicidade/eslint-config": "git+ssh://git@github.com/dfg-publicidade/eslint-config.git",
